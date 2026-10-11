@@ -14,7 +14,7 @@ Guest: Ubuntu 24.04 arm64, kernel `7.0.0-38-generic`, 4 vCPU, 16 GB RAM, root ov
 | 1 | Go unit tests: `flow`, `flow/pkg`, `e2e_cleanup` (build + vet), `TZ=UTC` | **pass** — `flow` 30 packages `ok`, `pkg` all `ok`, cleanup clean |
 | 2 | `golangci-lint v2.14.0` over the three modules, under a `go work` | **pass** — `0 issues.` for each |
 | 3 | `cargo test -- --test-threads=1` in `nexus` (CI's invocation) | **pass** — 29 × `test result: ok`, doctests included; the credentialed tests skip themselves |
-| 4 | Tilt: core compose + images, then an e2e package | **not achievable in this guest** — see below |
+| 4 | Tilt: core compose + images, then an e2e package | **passes now — verified**; firecode's container support landed after this was written, so the row above is history. See “Tier 4, revisited” at the end. |
 
 ## The commands, since they are the reproducible part
 
@@ -60,7 +60,11 @@ exit code alone says "Rust tests failing"; reading the tail alone says "all ok".
 number told the truth. Fixed by `go clean -cache`, pointing `TMPDIR` at the project drive, and
 re-running: 29 × `ok`.
 
-## Tier 4: why the Tilt stack does not run here
+## Tier 4: why the Tilt stack did not run here (superseded — see “Tier 4, revisited”)
+
+This section is the state of things **before** firecode's container support landed. It is kept
+because the failure it records is what produced the handoff that fixed it; the working result is
+at the end of the file.
 
 The stack is `docker-compose-dev.yml` (14 services) plus five images built from this repo, driven
 by `tilt up`. Docker installs fine (`docker.io` + `docker-compose-v2`), and the guest has systemd,
@@ -155,3 +159,34 @@ choice is reversible — but it is a choice, and it belongs to whoever maintains
 
 `TestRunPipeline_FilterStripsLines` itself may need nothing at all — if the guest's kill came from
 the OOM killer, the test is innocent and its one failure was a symptom of the environment.
+
+## Tier 4, revisited — the whole stack, in a guest, verified
+
+Firecode now runs containers inside a guest (`3c7d8cc`: the kernel's whole module tree on a
+read-only drive with `depmod` indices made in the guest; docker's storage bind-mounted onto the
+workspace layer so images survive; modules, `bridge`, `nf_tables` by name; `122ebde`:
+`host.docker.internal` is the guest, which is what PeerDB's `.env` actually means for a stack
+running there). Re-run 2026-10-11 on a 47 GB layer, 8 vCPU, 16 GB:
+
+    ANCILLARY_postgres=0   ANCILLARY_postgres2=0
+    CORE_proto-gen=0  CORE_catalog=0  CORE_flow-migrate=0  CORE_flow-api=0
+    CORE_flow-worker=0  CORE_flow-snapshot-worker=0  CORE_minio=0
+    E2E=0
+    ok  github.com/PeerDB-io/peerdb/flow/e2e/postgres_postgres  2.809s
+
+`TestPeerFlowE2ETestSuitePG/Test_Complete_QRep_Flow_Multi_Insert_PG`, against the 14-service dev
+stack plus the ancillary Postgres pair, in one VM, in 3 m 43 s from a re-packed tree — protos,
+the generator, the whole stack and the test. Storage: 13 GB of the 47 GB layer, 10 images 2.8 GB,
+so the default 16 GB was indeed the binding constraint on the earlier attempt.
+
+`e2e-in-guest.sh` is the script that did it. Three things a **bare** guest needs and a CI runner
+has by construction — each one cost an attempt, and each hid until the stack was attempted:
+
+1. **`yq`**, or `scripts/generate-test-environment.sh` cannot resolve image tags and the Tiltfile
+   fails at load: `line 17: yq: command not found` → `Missing information: MYSQL_GTID_IMAGE=`.
+2. **The tree must be whole.** A `git archive` copy plus a `*` glob lost every dot-entry
+   (`.env.example`, `.github/`), and the generator reads `flow.yml` out of `.github`. Copy the
+   tree, don't archive-and-glob.
+3. **`tilt down` does not stop the Tilt process**, only its resources. A leftover instance keeps
+   the port, later commands answer from it, and every wait fails against a stack that was never
+   created. Free the port by pid before starting a new one.
