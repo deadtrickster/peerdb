@@ -1,0 +1,5 @@
+Temporal CLI 1.9.1 (Server 1.32.0, UI 2.54.1)
+
+Temporal Server:      localhost:7233
+Temporal Persistence: in-memory
+Temporal Metrics:     http://localhost:42157/metrics

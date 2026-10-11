@@ -1,0 +1,125 @@
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ RES=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ mkdir -p /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ '[' '!' -x /Users/dead/.temporalio/bin/temporal ']'
++ export PATH=/Users/dead/.temporalio/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ PATH=/Users/dead/.temporalio/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ temporal --version
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/temporal-version.txt
+temporal version 1.9.1 (Server 1.32.0, UI 2.54.1)
++ pkill -f 'temporal server start-dev'
++ sleep 2
++ pkill -9 -f 'temporal server start-dev'
++ true
++ pkill -f 'peerflow api'
++ pkill -f 'peerflow worker'
++ pkill -f 'peerflow snapshot-worker'
++ rm -f '/Users/dead/temporal-dev.db*'
++ sleep 1
++ setsid nohup temporal server start-dev --headless --ip 127.0.0.1 --port 7233
+++ seq 1 90
++ for i in $(seq 1 90)
++ sleep 1
++ for i in $(seq 1 90)
++ echo 'port 7233 open after 2s'
+port 7233 open after 2s
++ break
++ sleep 4
++ pgrep -af 'temporal server start-dev'
+6322 temporal server start-dev --headless --ip 127.0.0.1 --port 7233
++ echo '--- temporal up; its log so far ---'
+--- temporal up; its log so far ---
++ tail -5 /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/temporal.log
+Temporal CLI 1.9.1 (Server 1.32.0, UI 2.54.1)
+
+Temporal Server:      localhost:7233
+Temporal Persistence: in-memory
+Temporal Metrics:     http://localhost:35837/metrics
++ export PEERDB_CATALOG_HOST=127.0.0.1
++ PEERDB_CATALOG_HOST=127.0.0.1
++ export PEERDB_CATALOG_PORT=5432
++ PEERDB_CATALOG_PORT=5432
++ export PEERDB_CATALOG_USER=postgres
++ PEERDB_CATALOG_USER=postgres
++ export PEERDB_CATALOG_PASSWORD=postgres
++ PEERDB_CATALOG_PASSWORD=postgres
++ export PEERDB_CATALOG_DATABASE=peerdb_catalog
++ PEERDB_CATALOG_DATABASE=peerdb_catalog
++ export TEMPORAL_HOST_PORT=127.0.0.1:7233
++ TEMPORAL_HOST_PORT=127.0.0.1:7233
++ export PEERDB_TEMPORAL_NAMESPACE=default
++ PEERDB_TEMPORAL_NAMESPACE=default
++ peerflow migrate
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/migrate.log
++ tail -10
+2026/10/08 19:36:55 maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined
+{"time":"2026-10-08T19:36:55.415885584Z","level":"INFO","msg":"Starting db migrations","deploymentUid":""}
+{"time":"2026-10-08T19:36:55.421426086Z","level":"INFO","msg":"Completed db migrations","deploymentUid":""}
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow api'
++ true
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow worker'
++ true
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow snapshot-worker'
++ true
++ sleep 1
++ setsid nohup peerflow worker
++ setsid nohup peerflow snapshot-worker
++ sleep 5
++ setsid nohup peerflow api --port 8112 --gateway-port 8113 --temporal-host-port 127.0.0.1:7233 --temporal-namespace default
++ api_ok=no
+++ seq 1 60
++ for i in $(seq 1 60)
++ curl -sf --max-time 5 http://127.0.0.1:8113/v1/peers/list
++ api_ok=yes
++ echo 'flow-api answered after 1s'
+flow-api answered after 1s
++ cat /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/peers-list.json
+{"items":[], "sourceItems":[], "destinationItems":[]}+ break
++ '[' yes '!=' yes ']'
++ echo '--- one line from each log, plus any error ---'
+--- one line from each log, plus any error ---
++ for f in api worker snapshot-worker
++ echo '== api.log'
+== api.log
++ tail -3 /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/api.log
+{"time":"2026-10-08T19:36:56.484238031Z","level":"WARN","msg":"Encryption disabled. This is not recommended.","deploymentUid":""}
+{"time":"2026-10-08T19:36:56.485073531Z","level":"INFO","msg":"recrypt finished","tag":"alert config","deploymentUid":""}
+{"time":"2026-10-08T19:36:56.487115282Z","level":"INFO","msg":"recrypt finished","tag":"peer","deploymentUid":""}
++ grep -iE 'error|fatal|panic' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/api.log
++ tail -2
+{"time":"2026-10-08T19:36:56.475467195Z","level":"WARN","msg":"OAuth is disabled","error":"no identity providers configured","deploymentUid":""}
++ for f in api worker snapshot-worker
++ echo '== worker.log'
+== worker.log
++ tail -3 /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/worker.log
+{"time":"2026-10-08T19:36:56.829437809Z","level":"INFO","msg":"Finished emitting Active Flow Info","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-c798749b-645e-486d-99a2-335b5bd80fec","RunID":"01a11d04-cda2-7436-9374-c662cf0204b9","x-peerdb-additional-metadata":{"Operation":0},"scheduledTask":"RecordMetricsCritical","flows":0,"deploymentUid":""}
+{"time":"2026-10-08T19:36:56.829443725Z","level":"INFO","msg":"Finished RecordMetricsCritical","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-c798749b-645e-486d-99a2-335b5bd80fec","RunID":"01a11d04-cda2-7436-9374-c662cf0204b9","x-peerdb-additional-metadata":{"Operation":0},"scheduledTask":"RecordMetricsCritical","deploymentUid":""}
+{"time":"2026-10-08T19:36:56.829447059Z","level":"INFO","msg":"RecordMetricsCritical completed","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-c798749b-645e-486d-99a2-335b5bd80fec","RunID":"01a11d04-cda2-7436-9374-c662cf0204b9","x-peerdb-additional-metadata":{"Operation":0},"duration":3730918,"deploymentUid":""}
++ grep -iE 'error|fatal|panic' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/worker.log
++ tail -2
++ true
++ for f in api worker snapshot-worker
++ echo '== snapshot-worker.log'
+== snapshot-worker.log
++ tail -3 /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/snapshot-worker.log
+{"time":"2026-10-08T19:36:56.479335738Z","level":"INFO","msg":"Found export list for temporal metrics","exportList":"","deploymentUid":""}
+{"time":"2026-10-08T19:36:56.817377138Z","level":"INFO","msg":"Starting session worker","Namespace":"default","TaskQueue":"snapshot-flow-task-queue","WorkerID":"6371@firecode@","deploymentUid":""}
+{"time":"2026-10-08T19:36:56.817392472Z","level":"INFO","msg":"Started Worker","Namespace":"default","TaskQueue":"snapshot-flow-task-queue","WorkerID":"6371@firecode@","deploymentUid":""}
++ grep -iE 'error|fatal|panic' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/snapshot-worker.log
++ tail -2
++ true
++ echo '--- processes ---'
+--- processes ---
++ ps aux
++ grep -E '[p]eerflow|[t]emporal server'
++ awk '{print $2, $11, $12}'
+6322 temporal server
+6370 peerflow worker
+6371 peerflow snapshot-worker
+6372 peerflow api
++ echo '02-run-peerdb.sh OK'
+02-run-peerdb.sh OK
+EXIT=0

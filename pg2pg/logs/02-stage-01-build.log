@@ -1,0 +1,30 @@
++ export DEBIAN_FRONTEND=noninteractive
++ DEBIAN_FRONTEND=noninteractive
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ sudo apt-get install -y curl gcc libgeos-dev pkg-config
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (8.5.0-2ubuntu10).
+gcc is already the newest version (4:13.2.0-7ubuntu1).
+libgeos-dev is already the newest version (3.14.1-2.pgdg24.04+1).
+pkg-config is already the newest version (1.8.1-2build1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+++ uname -m
++ ARCH=aarch64
++ case "$ARCH" in
++ GOARCH=arm64
++ GOVER=1.27.1
++ '[' '!' -x /usr/local/go/bin/go ']'
++ export PATH=/usr/local/go/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ PATH=/usr/local/go/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ go version
+go version go1.27.1 linux/arm64
++ cd /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/flow
++ env GOFLAGS=-p=1 GOMAXPROCS=2 GOGC=30 go build -o /usr/local/bin/peerflow .
+github.com/PeerDB-io/peerdb/flow: go build github.com/PeerDB-io/peerdb/flow: copying /tmp/go-build2589250436/b001/exe/a.out: open /usr/local/bin/peerflow: permission denied
+
+real	1m50.930s
+user	2m37.796s
+sys	0m11.498s
+BUILD_EXIT=1

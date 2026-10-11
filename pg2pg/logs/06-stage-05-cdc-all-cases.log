@@ -1,0 +1,157 @@
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ RES=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ SUM='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo '--- before: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+--- before: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ for b in 1 2 3
++ lo=200001
++ hi=202000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(200001,202000) g'
++ echo 'INSERTED new ids 200001..202000'
+INSERTED new ids 200001..202000
++ for b in 1 2 3
++ lo=202001
++ hi=204000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(202001,204000) g'
++ echo 'INSERTED new ids 202001..204000'
+INSERTED new ids 202001..204000
++ for b in 1 2 3
++ lo=204001
++ hi=206000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(204001,206000) g'
++ echo 'INSERTED new ids 204001..206000'
+INSERTED new ids 204001..206000
++ sudo -u postgres psql -d pgsrc -c 'update public.t set v='\''UPDATED-'\''||id where id % 25 = 0'
++ echo 'UPDATED  id % 25 = 0'
+UPDATED  id % 25 = 0
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id % 100 = 0 and id <= 20000'
++ echo 'DELETED  id % 100 = 0 (seeded range)'
+DELETED  id % 100 = 0 (seeded range)
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='25800|1416003000|da14b721dc4b42f18c926d822e586117'
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ src_n=25800
++ echo 'SOURCE: 25800|1416003000|da14b721dc4b42f18c926d822e586117 (count 25800)'
+SOURCE: 25800|1416003000|da14b721dc4b42f18c926d822e586117 (count 25800)
++ '[' 25800 '!=' 25800 ']'
+++ date +%s
++ t0=1791488561
++ converged=no
+++ seq 1 150
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 6 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 7 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 8 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 9 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 0 -eq 0 ']'
++ echo 't+10s dst=20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+t+10s dst=20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
+++ date +%s
++ t1=1791488576
++ converged=yes
++ echo 'CONVERGED after 15s'
+CONVERGED after 15s
++ break
++ echo 'SOURCE     : 25800|1416003000|da14b721dc4b42f18c926d822e586117'
+SOURCE     : 25800|1416003000|da14b721dc4b42f18c926d822e586117
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo 'DESTINATION: 25800|1416003000|da14b721dc4b42f18c926d822e586117'
+DESTINATION: 25800|1416003000|da14b721dc4b42f18c926d822e586117
++ '[' yes = yes ']'
++ echo 'RESULT: INSERT + UPDATE + DELETE all propagated (count, sum and checksum match)'
+RESULT: INSERT + UPDATE + DELETE all propagated (count, sum and checksum match)
++ echo '05-cdc-cases.sh OK'
+05-cdc-cases.sh OK
+EXIT=0

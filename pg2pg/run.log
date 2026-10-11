@@ -1,0 +1,1242 @@
++++ dirname pg2pg/run.sh
+++ cd pg2pg
+++ pwd
++ D=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/00-setup-postgres.sh
++ ls /usr/lib/postgresql
++ sudo apt-get install -y curl jq ca-certificates
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (8.5.0-2ubuntu10).
+jq is already the newest version (1.7.1-3build1).
+ca-certificates is already the newest version (20240203).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+++ ls /usr/lib/postgresql
+++ sort -V
+++ tail -1
++ PGVER=18
++ echo PGVER=18
+PGVER=18
++ sudo pg_lsclusters -h
++ grep -q .
++ sudo pg_createcluster 18 main --start
+Creating new PostgreSQL cluster 18/main ...
+/usr/lib/postgresql/18/bin/initdb -D /var/lib/postgresql/18/main --auth-local peer --auth-host scram-sha-256 --no-instructions
+The files belonging to this database system will be owned by user "postgres".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C.UTF-8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are enabled.
+
+fixing permissions on existing directory /var/lib/postgresql/18/main ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default "max_connections" ... 100
+selecting default "shared_buffers" ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+Ver Cluster Port Status Owner    Data directory              Log file
+18  main    5432 online postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
++ sudo pg_lsclusters
+Ver Cluster Port Status Owner    Data directory              Log file
+18  main    5432 online postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
++ CONF=/etc/postgresql/18/main
++ sudo grep -q '^wal_level = logical' /etc/postgresql/18/main/postgresql.conf
++ sudo tee -a /etc/postgresql/18/main/postgresql.conf
++ sudo grep -q '^# --- peerdb trust block ---' /etc/postgresql/18/main/pg_hba.conf
++ sudo cp -n /etc/postgresql/18/main/pg_hba.conf /etc/postgresql/18/main/pg_hba.conf.orig
+cp: warning: behavior of -n is non-portable and may change in future; use --update=none instead
++ sudo tee /etc/postgresql/18/main/pg_hba.conf
++ sudo cat /etc/postgresql/18/main/pg_hba.conf.orig
++ sudo tee -a /etc/postgresql/18/main/pg_hba.conf
++ sudo -u postgres psql -c 'ALTER USER postgres PASSWORD '\''postgres'\'''
++ sudo pg_ctlcluster 18 main restart
++ sleep 3
++ echo '--- what the server says about itself ---'
+--- what the server says about itself ---
++ sudo -u postgres psql -tAc 'select version()'
+PostgreSQL 18.6 (Ubuntu 18.6-1.pgdg24.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
++ sudo -u postgres psql -tAc 'select name||'\'' = '\''||setting from pg_settings where name in ('\''wal_level'\'','\''max_wal_senders'\'','\''max_replication_slots'\'')'
+max_replication_slots = 10
+max_wal_senders = 10
+wal_level = logical
++ for db in peerdb_catalog pgsrc pgdst
++ sudo -u postgres psql -tAc 'select 1 from pg_database where datname='\''peerdb_catalog'\'''
++ grep -q 1
++ sudo -u postgres createdb peerdb_catalog
++ for db in peerdb_catalog pgsrc pgdst
++ sudo -u postgres psql -tAc 'select 1 from pg_database where datname='\''pgsrc'\'''
++ grep -q 1
++ sudo -u postgres createdb pgsrc
++ for db in peerdb_catalog pgsrc pgdst
++ sudo -u postgres psql -tAc 'select 1 from pg_database where datname='\''pgdst'\'''
++ grep -q 1
++ sudo -u postgres createdb pgdst
++ sudo -u postgres psql -tAc 'select datname from pg_database where datname in ('\''peerdb_catalog'\'','\''pgsrc'\'','\''pgdst'\'') order by 1'
+peerdb_catalog
+pgdst
+pgsrc
++ PGPASSWORD=postgres
++ psql -h 127.0.0.1 -U postgres -d peerdb_catalog -tAc 'select '\''tcp auth ok'\'''
+tcp auth ok
++ PGPASSWORD=postgres
++ psql -h 127.0.0.1 -U postgres -d peerdb_catalog -tAc 'select rolreplication from pg_roles where rolname='\''postgres'\'''
+t
++ echo '00-setup-postgres.sh OK'
+00-setup-postgres.sh OK
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/01-toolchain.sh
++ export DEBIAN_FRONTEND=noninteractive
++ DEBIAN_FRONTEND=noninteractive
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/01-toolchain.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ sudo apt-get install -y curl gcc libgeos-dev pkg-config
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (8.5.0-2ubuntu10).
+gcc is already the newest version (4:13.2.0-7ubuntu1).
+gcc set to manually installed.
+pkg-config is already the newest version (1.8.1-2build1).
+The following additional packages will be installed:
+  libgeos-c1t64 libgeos3.14.1
+Suggested packages:
+  libgdal-doc
+The following NEW packages will be installed:
+  libgeos-c1t64 libgeos-dev libgeos3.14.1
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 985 kB of archives.
+After this operation, 4130 kB of additional disk space will be used.
+Get:1 http://apt.postgresql.org/pub/repos/apt noble-pgdg/main arm64 libgeos3.14.1 arm64 3.14.1-2.pgdg24.04+1 [824 kB]
+Get:2 http://apt.postgresql.org/pub/repos/apt noble-pgdg/main arm64 libgeos-c1t64 arm64 3.14.1-2.pgdg24.04+1 [99.9 kB]
+Get:3 http://apt.postgresql.org/pub/repos/apt noble-pgdg/main arm64 libgeos-dev arm64 3.14.1-2.pgdg24.04+1 [61.8 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 985 kB in 0s (3344 kB/s)
+Selecting previously unselected package libgeos3.14.1:arm64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 26647 files and directories currently installed.)
+Preparing to unpack .../libgeos3.14.1_3.14.1-2.pgdg24.04+1_arm64.deb ...
+Unpacking libgeos3.14.1:arm64 (3.14.1-2.pgdg24.04+1) ...
+Selecting previously unselected package libgeos-c1t64:arm64.
+Preparing to unpack .../libgeos-c1t64_3.14.1-2.pgdg24.04+1_arm64.deb ...
+Unpacking libgeos-c1t64:arm64 (3.14.1-2.pgdg24.04+1) ...
+Selecting previously unselected package libgeos-dev.
+Preparing to unpack .../libgeos-dev_3.14.1-2.pgdg24.04+1_arm64.deb ...
+Unpacking libgeos-dev (3.14.1-2.pgdg24.04+1) ...
+Setting up libgeos3.14.1:arm64 (3.14.1-2.pgdg24.04+1) ...
+Setting up libgeos-c1t64:arm64 (3.14.1-2.pgdg24.04+1) ...
+Setting up libgeos-dev (3.14.1-2.pgdg24.04+1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8) ...
+++ uname -m
++ ARCH=aarch64
++ case "$ARCH" in
++ GOARCH=arm64
++ GOVER=1.27.1
++ '[' '!' -x /usr/local/go/bin/go ']'
++ curl -fsSL -o /tmp/go.tgz https://go.dev/dl/go1.27.1.linux-arm64.tar.gz
++ sudo rm -rf /usr/local/go
++ sudo tar -C /usr/local -xzf /tmp/go.tgz
++ export PATH=/usr/local/go/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ PATH=/usr/local/go/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ go version
+go version go1.27.1 linux/arm64
++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/flow
++ env GOFLAGS=-p=1 GOMAXPROCS=2 GOGC=30 go build -o /tmp/peerflow .
+go: downloading github.com/urfave/cli/v3 v3.12.0
+go: downloading go.temporal.io/sdk v1.49.0
+go: downloading go.uber.org/automaxprocs v1.6.0
+go: downloading github.com/jackc/pgx/v5 v5.10.0
+go: downloading github.com/pressly/goose/v3 v3.28.0
+go: downloading github.com/gogo/googleapis v1.4.1
+go: downloading github.com/google/uuid v1.6.0
+go: downloading github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
+go: downloading github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6
+go: downloading go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.71.0
+go: downloading go.opentelemetry.io/otel/sdk v1.46.0
+go: downloading go.opentelemetry.io/otel v1.46.0
+go: downloading go.temporal.io/api v1.63.5
+go: downloading go.temporal.io/sdk/contrib/opentelemetry v0.8.1
+go: downloading golang.org/x/sync v0.23.0
+go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20260831171406-18b4a7587f8a
+go: downloading google.golang.org/grpc v1.83.2
+go: downloading google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7
+go: downloading google.golang.org/protobuf v1.36.12
+go: downloading k8s.io/apimachinery v0.37.0
+go: downloading k8s.io/client-go v0.35.3
+go: downloading github.com/PeerDB-io/glua64 v1.0.1
+go: downloading github.com/pgvector/pgvector-go/pgx v0.4.1
+go: downloading github.com/pgvector/pgvector-go v0.4.1
+go: downloading github.com/shopspring/decimal v1.4.0
+go: downloading github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
+go: downloading github.com/yuin/gopher-lua v1.1.2
+go: downloading github.com/PeerDB-io/crypto v0.57.17
+go: downloading golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba
+go: downloading github.com/nexus-rpc/sdk-go v0.7.0
+go: downloading cloud.google.com/go/kms v1.33.0
+go: downloading cloud.google.com/go v0.123.0
+go: downloading github.com/aws/aws-sdk-go-v2 v1.47.0
+go: downloading github.com/aws/aws-sdk-go-v2/config v1.33.5
+go: downloading github.com/aws/aws-sdk-go-v2/service/kms v1.60.0
+go: downloading github.com/stretchr/testify v1.12.1
+go: downloading github.com/sethvargo/go-retry v0.4.0
+go: downloading go.uber.org/multierr v1.11.0
+go: downloading github.com/robfig/cron/v3 v3.0.1
+go: downloading go.opentelemetry.io/otel/metric v1.46.0
+go: downloading github.com/robfig/cron v1.2.0
+go: downloading go.opentelemetry.io/otel/trace v1.46.0
+go: downloading cloud.google.com/go/bigquery v1.74.0
+go: downloading github.com/ClickHouse/ch-go v0.74.0
+go: downloading github.com/ClickHouse/clickhouse-go/v2 v2.48.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/ses v1.42.0
+go: downloading github.com/go-mysql-org/go-mysql v1.15.1-0.20260701093637-35ca5c6ee8c8
+go: downloading github.com/slack-go/slack v0.29.0
+go: downloading go.mongodb.org/mongo-driver/v2 v2.9.1
+go: downloading google.golang.org/api v0.287.1
+go: downloading cloud.google.com/go/storage v1.62.1
+go: downloading github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager v0.4.7
+go: downloading github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
+go: downloading github.com/hamba/avro/v2 v2.31.0
+go: downloading github.com/jackc/pglogrepl v0.0.0-20260824121319-4ae5c490f7ce
+go: downloading github.com/json-iterator/go v1.1.12
+go: downloading github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee
+go: downloading cloud.google.com/go/auth v0.20.0
+go: downloading cloud.google.com/go/cloudsqlconn v1.22.1
+go: downloading cloud.google.com/go/compute/metadata v0.9.0
+go: downloading cloud.google.com/go/pubsub/v2 v2.3.0
+go: downloading github.com/PeerDB-io/gluajson v1.0.2
+go: downloading github.com/Shopify/toxiproxy/v2 v2.12.0
+go: downloading github.com/aws/aws-sdk-go-v2/credentials v1.20.5
+go: downloading github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.7.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/sts v1.51.0
+go: downloading github.com/aws/smithy-go v1.28.1
+go: downloading github.com/cockroachdb/pebble/v2 v2.1.7
+go: downloading google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
+go: downloading github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.4
+go: downloading github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
+go: downloading github.com/lestrrat-go/httprc/v3 v3.0.6
+go: downloading github.com/lestrrat-go/jwx/v3 v3.3.0
+go: downloading github.com/go-logr/logr v1.4.4
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.46.0
+go: downloading go.opentelemetry.io/otel/sdk/metric v1.46.0
+go: downloading github.com/nickbruun/pgsplit v0.0.0-20240103043353-43e6c2dddfad
+go: downloading github.com/pingcap/tidb/pkg/parser v0.0.0-20260504140133-511dba1dbe17
+go: downloading github.com/pingcap/tidb v0.0.0-20250130070702-43f2fb91d740
+go: downloading github.com/xdg-go/scram v1.2.0
+go: downloading github.com/gogo/protobuf v1.3.2
+go: downloading github.com/nexus-rpc/nexus-proto-annotations v0.1.0
+go: downloading golang.org/x/net v0.59.0
+go: downloading k8s.io/utils v0.0.0-20260626114624-be93311217bd
+go: downloading sigs.k8s.io/randfill v1.0.0
+go: downloading github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
+go: downloading k8s.io/klog/v2 v2.140.0
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading golang.org/x/text v0.42.0
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading github.com/x448/float16 v0.8.4
+go: downloading github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
+go: downloading github.com/golang/mock v1.6.0
+go: downloading golang.org/x/time v0.15.0
+go: downloading cloud.google.com/go/iam v1.11.0
+go: downloading cloud.google.com/go/longrunning v1.2.0
+go: downloading github.com/googleapis/gax-go/v2 v2.23.0
+go: downloading github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/signin v1.10.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/sso v1.38.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.0
+go: downloading github.com/mfridman/interpolate v0.0.2
+go: downloading github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.3
+go: downloading github.com/PeerDB-io/gluabit32 v1.0.2
+go: downloading github.com/PeerDB-io/gluamsgpack v1.0.5
+go: downloading github.com/PeerDB-io/gluautf8 v1.0.0
+go: downloading github.com/apache/arrow/go/v15 v15.0.2
+go: downloading github.com/go-faster/errors v0.8.0
+go: downloading github.com/segmentio/asm v1.2.1
+go: downloading github.com/andybalholm/brotli v1.2.3
+go: downloading filippo.io/edwards25519 v1.2.0
+go: downloading github.com/pingcap/errors v0.11.5-0.20260523003111-3697ad564b43
+go: downloading github.com/goccy/go-json v0.10.6
+go: downloading github.com/klauspost/compress v1.19.2
+go: downloading github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
+go: downloading github.com/apache/arrow-go/v18 v18.8.0
+go: downloading github.com/twpayne/go-geos v0.22.0
+go: downloading github.com/elastic/go-elasticsearch/v8 v8.19.7
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.14.1
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.2
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/eventhub/armeventhub v1.3.0
+go: downloading github.com/orcaman/concurrent-map/v2 v2.0.1
+go: downloading github.com/twmb/franz-go/pkg/kadm v1.18.0
+go: downloading github.com/twmb/franz-go v1.21.7
+go: downloading github.com/twmb/franz-go/plugin/kslog v1.0.0
+go: downloading github.com/snowflakedb/gosnowflake/v2 v2.2.0
+go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.55.0
+go: downloading go.opentelemetry.io/contrib/detectors/gcp v1.44.0
+go: downloading github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.20
+go: downloading github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.19
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.11.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.20.3
+go: downloading github.com/golang/snappy v1.0.0
+go: downloading github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+go: downloading github.com/jackc/pgio v1.0.0
+go: downloading cloud.google.com/go/auth/oauth2adapt v0.2.8
+go: downloading golang.org/x/oauth2 v0.36.0
+go: downloading go.opencensus.io v0.24.0
+go: downloading github.com/joho/godotenv v1.5.1
+go: downloading github.com/lestrrat-go/blackmagic v1.0.4
+go: downloading github.com/lestrrat-go/httpcc v1.0.1
+go: downloading github.com/lestrrat-go/option/v2 v2.0.0
+go: downloading github.com/cockroachdb/crlib v0.0.0-20251122031428-fe658a2dbda1
+go: downloading github.com/cockroachdb/errors v1.12.0
+go: downloading github.com/cockroachdb/redact v1.1.8
+go: downloading github.com/cockroachdb/tokenbucket v0.0.0-20250429170803-42689b6311bb
+go: downloading github.com/prometheus/client_golang v1.23.2
+go: downloading github.com/go-viper/mapstructure/v2 v2.5.0
+go: downloading github.com/lestrrat-go/dsig v1.4.0
+go: downloading go.opentelemetry.io/proto/otlp v1.11.0
+go: downloading golang.org/x/sys v0.48.0
+go: downloading github.com/pingcap/failpoint v0.0.0-20260406204437-bbc9d102c19e
+go: downloading github.com/xdg-go/stringprep v1.0.4
+go: downloading github.com/go-logr/stdr v1.2.2
+go: downloading go.opentelemetry.io/auto/sdk v1.2.1
+go: downloading k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad
+go: downloading sigs.k8s.io/structured-merge-diff/v6 v6.4.2
+go: downloading gopkg.in/inf.v0 v0.9.1
+go: downloading sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730
+go: downloading github.com/google/gnostic-models v0.7.1
+go: downloading k8s.io/api v0.35.3
+go: downloading github.com/fxamacker/cbor/v2 v2.9.1
+go: downloading golang.org/x/term v0.46.0
+go: downloading github.com/stretchr/objx v0.5.3
+go: downloading go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
+go: downloading github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.3
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
+go: downloading github.com/google/flatbuffers v25.12.19+incompatible
+go: downloading github.com/pierrec/lz4/v4 v4.1.29
+go: downloading github.com/go-faster/city v1.0.1
+go: downloading github.com/paulmach/orb v0.13.0
+go: downloading go.uber.org/atomic v1.11.0
+go: downloading github.com/apache/thrift v0.24.0
+go: downloading github.com/elastic/elastic-transport-go/v8 v8.10.0
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/azcore v1.23.1
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/internal v1.12.0
+go: downloading github.com/AzureAD/microsoft-authentication-library-for-go v1.9.0
+go: downloading github.com/Azure/go-amqp v1.5.1
+go: downloading github.com/twmb/franz-go/pkg/kmsg v1.13.1
+go: downloading github.com/coreos/go-semver v0.3.1
+go: downloading github.com/pingcap/log v1.1.1-0.20260227082333-572e590d08f1
+go: downloading go.uber.org/zap v1.28.0
+go: downloading cloud.google.com/go/monitoring v1.24.3
+go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.55.0
+go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.33.0
+go: downloading github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.4
+go: downloading github.com/gabriel-vasile/mimetype v1.4.13
+go: downloading github.com/golang-jwt/jwt/v5 v5.3.1
+go: downloading github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
+go: downloading go.yaml.in/yaml/v3 v3.0.5
+go: downloading github.com/google/s2a-go v0.1.9
+go: downloading github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506
+go: downloading github.com/getsentry/sentry-go v0.44.1
+go: downloading github.com/pkg/errors v0.9.1
+go: downloading github.com/cockroachdb/swiss v0.0.0-20260820225851-333444432258
+go: downloading github.com/RaduBerinde/axisds v0.1.0
+go: downloading github.com/valyala/fastjson v1.6.10
+go: downloading github.com/beorn7/perks v1.0.1
+go: downloading github.com/prometheus/client_model v0.6.2
+go: downloading github.com/prometheus/common v0.67.5
+go: downloading github.com/prometheus/procfs v0.22.0
+go: downloading github.com/cenkalti/backoff/v5 v5.0.3
+go: downloading go.yaml.in/yaml/v2 v2.4.4
+go: downloading sigs.k8s.io/yaml v1.6.0
+go: downloading github.com/googleapis/enterprise-certificate-proxy v0.3.17
+go: downloading github.com/felixge/httpsnoop v1.1.0
+go: downloading github.com/zeebo/xxh3 v1.1.0
+go: downloading github.com/klauspost/cpuid/v2 v2.4.0
+go: downloading github.com/kylelemons/godebug v1.1.0
+go: downloading gopkg.in/natefinch/lumberjack.v2 v2.2.1
+go: downloading github.com/golang/protobuf v1.5.4
+go: downloading github.com/opentracing/opentracing-go v1.2.0
+go: downloading github.com/PeerDB-io/tikv-client-go/v2 v2.0.7
+go: downloading github.com/envoyproxy/go-control-plane/envoy v1.37.0
+go: downloading github.com/BurntSushi/toml v1.6.0
+go: downloading github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8
+go: downloading github.com/kr/pretty v0.3.1
+go: downloading github.com/RaduBerinde/btreemap v0.0.0-20260105202824-d3184786f603
+go: downloading github.com/DataDog/zstd v1.5.7
+go: downloading github.com/minio/minlz v1.1.0
+go: downloading github.com/go-openapi/swag v0.28.0
+go: downloading github.com/go-openapi/jsonreference v1.0.0
+go: downloading gopkg.in/evanphx/json-patch.v4 v4.13.0
+go: downloading github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
+go: downloading github.com/pingcap/sysutil v1.0.1-0.20240311050922-ae81ee01f3a5
+go: downloading github.com/shirou/gopsutil/v3 v3.24.5
+go: downloading github.com/opentracing/basictracer-go v1.1.0
+go: downloading github.com/pingcap/kvproto v0.0.0-20260331120830-0d407c8b3f6e
+go: downloading github.com/tiancaiamao/gp v0.0.0-20230126082955-4f9e4f1ed9b5
+go: downloading github.com/tikv/pd/client v0.0.0-20251229071808-6173d50c004c
+go: downloading go.etcd.io/etcd/api/v3 v3.6.9
+go: downloading go.etcd.io/etcd/client/v3 v3.6.9
+go: downloading github.com/spiffe/go-spiffe/v2 v2.7.0
+go: downloading github.com/cncf/xds/go v0.0.0-20260202195803-dba9d589def2
+go: downloading github.com/envoyproxy/protoc-gen-validate v1.3.3
+go: downloading github.com/kr/text v0.2.0
+go: downloading github.com/rogpeppe/go-internal v1.14.1
+go: downloading github.com/emicklei/go-restful/v3 v3.13.0
+go: downloading github.com/go-openapi/jsonpointer v1.0.0
+go: downloading github.com/go-openapi/swag/cmdutils v0.28.0
+go: downloading github.com/go-openapi/swag/conv v0.28.0
+go: downloading github.com/go-openapi/swag/fileutils v0.28.0
+go: downloading github.com/go-openapi/swag/jsonutils v0.28.0
+go: downloading github.com/go-openapi/swag/loading v0.28.0
+go: downloading github.com/go-openapi/swag/mangling v0.28.0
+go: downloading github.com/go-openapi/swag/netutils v0.28.0
+go: downloading github.com/go-openapi/swag/stringutils v0.28.0
+go: downloading github.com/go-openapi/swag/typeutils v0.28.0
+go: downloading github.com/go-openapi/swag/yamlutils v0.28.0
+go: downloading github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548
+go: downloading github.com/twmb/murmur3 v1.1.8
+go: downloading github.com/google/btree v1.1.3
+go: downloading github.com/VividCortex/ewma v1.2.0
+go: downloading github.com/dgryski/go-farm v0.0.0-20240924180020-3414d57e47da
+go: downloading github.com/docker/go-units v0.5.0
+go: downloading github.com/cloudfoundry/gosigar v1.3.117
+go: downloading go.etcd.io/etcd/client/pkg/v3 v3.6.9
+go: downloading github.com/go-jose/go-jose/v4 v4.1.4
+go: downloading cel.dev/expr v0.25.2
+go: downloading github.com/tklauser/go-sysconf v0.4.0
+go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
+go: downloading github.com/coreos/go-systemd/v22 v22.7.0
+go: downloading github.com/tklauser/numcpus v0.12.0
+go: downloading github.com/go-openapi/swag/pools v0.28.0
+
+real	5m9.310s
+user	6m48.915s
+sys	0m28.408s
++ sudo install -m 0755 /tmp/peerflow /usr/local/bin/peerflow
++ echo '--- the four subcommands this binary must have ---'
+--- the four subcommands this binary must have ---
++ /usr/local/bin/peerflow --help
+2026/10/08 23:05:33 maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined
+NAME:
+   PeerDB Flows CLI - A new cli application
+
+USAGE:
+   PeerDB Flows CLI [global options] [command [command options]]
+
+COMMANDS:
+   worker           
+   snapshot-worker  
+   api              
+   migrate          Run catalog schema migrations to the latest version and exit
+   maintenance      
+   help, h          Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --enable-profiling  Enable profiling for the application [$ENABLE_PROFILING]
+   --pprof-port uint   Port for pprof HTTP server (default: 6060) [$PPROF_PORT]
+   --help, -h          show help
++ echo '--- api flags, so the port/namespace wiring is on the record ---'
+--- api flags, so the port/namespace wiring is on the record ---
++ /usr/local/bin/peerflow api --help
+2026/10/08 23:05:33 maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined
+NAME:
+   PeerDB Flows CLI api
+
+USAGE:
+   PeerDB Flows CLI api [options]
+
+OPTIONS:
+   --port uint, -p uint         (default: 8110)
+   --gateway-port uint          Port grpc-gateway listens on (default: 8111)
+   --switchboard-port uint      Port Switchboard listens on (when enabled) (default: 5732) [$PEERDB_SWITCHBOARD_PORT]
+   --temporal-host-port string  (default: "localhost:7233") [$TEMPORAL_HOST_PORT]
+   --temporal-namespace string  Temporal namespace to use for workflow orchestration (default: "default") [$PEERDB_TEMPORAL_NAMESPACE]
+   --enable-otel-metrics        Enable OpenTelemetry metrics for the application [$ENABLE_OTEL_METRICS]
+   --enable-otel-traces         Enable OpenTelemetry traces for the application [$ENABLE_OTEL_TRACES]
+   --help, -h                   show help
+
+GLOBAL OPTIONS:
+   --enable-profiling  Enable profiling for the application [$ENABLE_PROFILING]
+   --pprof-port uint   Port for pprof HTTP server (default: 6060) [$PPROF_PORT]
++ echo '01-toolchain.sh OK'
+01-toolchain.sh OK
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/02-run-peerdb.sh
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/02-run-peerdb.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ RES=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ mkdir -p /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ '[' '!' -x /Users/dead/.temporalio/bin/temporal ']'
++ curl -sSf https://temporal.download/cli.sh
++ bash
+temporal: Downloading Temporal CLI latest
+temporal: Temporal CLI installed at /Users/dead/.temporalio/bin/temporal
+temporal: For convenience, we recommend adding it to your PATH
+temporal: If using bash, run echo export PATH="\$PATH:/Users/dead/.temporalio/bin" >> ~/.bashrc
++ export PATH=/Users/dead/.temporalio/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ PATH=/Users/dead/.temporalio/bin:/opt/mise/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++ temporal --version
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/temporal-version.txt
+temporal version 1.9.1 (Server 1.32.0, UI 2.54.1)
++ pkill -f 'temporal server start-dev'
++ true
++ sleep 2
++ pkill -9 -f 'temporal server start-dev'
++ true
++ pkill -f 'peerflow api'
++ true
++ pkill -f 'peerflow worker'
++ true
++ pkill -f 'peerflow snapshot-worker'
++ true
++ rm -f '/Users/dead/temporal-dev.db*'
++ sleep 1
++ setsid nohup temporal server start-dev --headless --ip 127.0.0.1 --port 7233
+++ seq 1 90
++ for i in $(seq 1 90)
++ sleep 1
++ for i in $(seq 1 90)
++ echo 'port 7233 open after 2s'
+port 7233 open after 2s
++ break
++ sleep 4
++ pgrep -af 'temporal server start-dev'
+15045 temporal server start-dev --headless --ip 127.0.0.1 --port 7233
++ echo '--- temporal up; its log so far ---'
+--- temporal up; its log so far ---
++ tail -5 /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/temporal.log
+Temporal CLI 1.9.1 (Server 1.32.0, UI 2.54.1)
+
+Temporal Server:      localhost:7233
+Temporal Persistence: in-memory
+Temporal Metrics:     http://localhost:42157/metrics
++ temporal operator search-attribute list
+                  Name                     Type    
+  BatcherNamespace                      Keyword    
+  BatcherUser                           Keyword    
+  BinaryChecksums                       KeywordList
+  BuildIds                              KeywordList
+  CloseTime                             Datetime   
+  ExecutionDuration                     Int        
+  ExecutionStatus                       Keyword    
+  ExecutionTime                         Datetime   
+  HistoryLength                         Int        
+  HistorySizeBytes                      Int        
+  ParentRunId                           Keyword    
+  ParentWorkflowId                      Keyword    
+  RootRunId                             Keyword    
+  RootWorkflowId                        Keyword    
+  RunId                                 Keyword    
+  StartTime                             Datetime   
+  StateTransitionCount                  Int        
+  TaskQueue                             Keyword    
+  TemporalChangeVersion                 KeywordList
+  TemporalExternalPayloadCount          Int        
+  TemporalExternalPayloadSizeBytes      Int        
+  TemporalNamespaceDivision             Keyword    
+  TemporalPauseInfo                     KeywordList
+  TemporalReportedProblems              KeywordList
+  TemporalSchedulePaused                Bool       
+  TemporalScheduledById                 Keyword    
+  TemporalScheduledStartTime            Datetime   
+  TemporalUsedWorkerDeploymentVersions  KeywordList
+  TemporalWorkerDeployment              Keyword    
+  TemporalWorkerDeploymentVersion       Keyword    
+  TemporalWorkflowVersioningBehavior    Keyword    
+  WorkflowId                            Keyword    
+  WorkflowType                          Keyword    
++ temporal operator search-attribute list
++ grep -w MirrorName
++ temporal operator search-attribute create --name MirrorName --type Text --namespace default
+Search attributes have been added
++ temporal operator search-attribute list
+                  Name                     Type    
+  BatcherNamespace                      Keyword    
+  BatcherUser                           Keyword    
+  BinaryChecksums                       KeywordList
+  BuildIds                              KeywordList
+  CloseTime                             Datetime   
+  ExecutionDuration                     Int        
+  ExecutionStatus                       Keyword    
+  ExecutionTime                         Datetime   
+  HistoryLength                         Int        
+  HistorySizeBytes                      Int        
+  ParentRunId                           Keyword    
+  ParentWorkflowId                      Keyword    
+  RootRunId                             Keyword    
+  RootWorkflowId                        Keyword    
+  RunId                                 Keyword    
+  StartTime                             Datetime   
+  StateTransitionCount                  Int        
+  TaskQueue                             Keyword    
+  TemporalChangeVersion                 KeywordList
+  TemporalExternalPayloadCount          Int        
+  TemporalExternalPayloadSizeBytes      Int        
+  TemporalNamespaceDivision             Keyword    
+  TemporalPauseInfo                     KeywordList
+  TemporalReportedProblems              KeywordList
+  TemporalSchedulePaused                Bool       
+  TemporalScheduledById                 Keyword    
+  TemporalScheduledStartTime            Datetime   
+  TemporalUsedWorkerDeploymentVersions  KeywordList
+  TemporalWorkerDeployment              Keyword    
+  TemporalWorkerDeploymentVersion       Keyword    
+  TemporalWorkflowVersioningBehavior    Keyword    
+  WorkflowId                            Keyword    
+  WorkflowType                          Keyword    
+  MirrorName                            Text       
++ export PEERDB_CATALOG_HOST=127.0.0.1
++ PEERDB_CATALOG_HOST=127.0.0.1
++ export PEERDB_CATALOG_PORT=5432
++ PEERDB_CATALOG_PORT=5432
++ export PEERDB_CATALOG_USER=postgres
++ PEERDB_CATALOG_USER=postgres
++ export PEERDB_CATALOG_PASSWORD=postgres
++ PEERDB_CATALOG_PASSWORD=postgres
++ export PEERDB_CATALOG_DATABASE=peerdb_catalog
++ PEERDB_CATALOG_DATABASE=peerdb_catalog
++ export TEMPORAL_HOST_PORT=127.0.0.1:7233
++ TEMPORAL_HOST_PORT=127.0.0.1:7233
++ export PEERDB_TEMPORAL_NAMESPACE=default
++ PEERDB_TEMPORAL_NAMESPACE=default
++ peerflow migrate
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/migrate.log
++ tail -10
+{"time":"2026-10-08T23:05:47.211249495Z","level":"INFO","msg":"Migration Applied","name":"00049_flow_migrations.sql","version":49,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211251203Z","level":"INFO","msg":"Migration Applied","name":"00050_cdc_batches_sync_time.sql","version":50,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.21125287Z","level":"INFO","msg":"Migration Applied","name":"00051_qrep_partitions_nullable_range.sql","version":51,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211255578Z","level":"INFO","msg":"Migration Applied","name":"00052_qrep_partitions_child_table_ranges.sql","version":52,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211257536Z","level":"INFO","msg":"Migration Applied","name":"00053_cdc_batches_open_index.sql","version":53,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211259786Z","level":"INFO","msg":"Migration Applied","name":"00054_qrep_offloaded_partition_ranges.sql","version":54,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211261661Z","level":"INFO","msg":"Migration Applied","name":"00055_cdc_batches_first_row_times.sql","version":55,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211264453Z","level":"INFO","msg":"Migration Applied","name":"00056_query_cdc_replication_state.sql","version":56,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211266786Z","level":"INFO","msg":"Migration Applied","name":"00057_qrep_runs_failed.sql","version":57,"deploymentUid":""}
+{"time":"2026-10-08T23:05:47.211269745Z","level":"INFO","msg":"Completed db migrations","deploymentUid":""}
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow api'
++ true
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow worker'
++ true
++ for proc in api worker snapshot-worker
++ pkill -f 'peerflow snapshot-worker'
++ true
++ sleep 1
++ setsid nohup peerflow worker
++ setsid nohup peerflow snapshot-worker
++ sleep 5
++ setsid nohup peerflow api --port 8112 --gateway-port 8113 --temporal-host-port 127.0.0.1:7233 --temporal-namespace default
++ api_ok=no
+++ seq 1 60
++ for i in $(seq 1 60)
++ curl -sf --max-time 5 http://127.0.0.1:8113/v1/peers/list
++ api_ok=yes
++ echo 'flow-api answered after 1s'
+flow-api answered after 1s
++ cat /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/peers-list.json
+{"items":[], "sourceItems":[], "destinationItems":[]}+ break
++ '[' yes '!=' yes ']'
++ echo '--- one line from each log, plus any error ---'
+--- one line from each log, plus any error ---
++ for f in api worker snapshot-worker
++ echo '== api.log'
+== api.log
++ tail -3 /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/api.log
+{"time":"2026-10-08T23:05:48.27382336Z","level":"WARN","msg":"Encryption disabled. This is not recommended.","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.275269355Z","level":"INFO","msg":"recrypt finished","tag":"alert config","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.278580926Z","level":"INFO","msg":"recrypt finished","tag":"peer","deploymentUid":""}
++ grep -iE 'error|fatal|panic' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/api.log
++ tail -2
+{"time":"2026-10-08T23:05:48.264122646Z","level":"WARN","msg":"OAuth is disabled","error":"no identity providers configured","deploymentUid":""}
++ for f in api worker snapshot-worker
++ echo '== worker.log'
+== worker.log
++ tail -3 /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/worker.log
+{"time":"2026-10-08T23:05:48.614220533Z","level":"INFO","msg":"Finished emitting Active Flow Info","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-e23449aa-6b2a-478b-9f6d-16ba6f0e83ff","RunID":"01a11dc4-05ef-7975-a1a7-3516813eb70e","x-peerdb-additional-metadata":{"Operation":0},"scheduledTask":"RecordMetricsCritical","flows":0,"deploymentUid":""}
+{"time":"2026-10-08T23:05:48.614225283Z","level":"INFO","msg":"Finished RecordMetricsCritical","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-e23449aa-6b2a-478b-9f6d-16ba6f0e83ff","RunID":"01a11dc4-05ef-7975-a1a7-3516813eb70e","x-peerdb-additional-metadata":{"Operation":0},"scheduledTask":"RecordMetricsCritical","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.614228324Z","level":"INFO","msg":"RecordMetricsCritical completed","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ScheduledTasks","Attempt":1,"WorkflowType":"ScheduledTasksWorkflow","WorkflowID":"scheduler-e23449aa-6b2a-478b-9f6d-16ba6f0e83ff","RunID":"01a11dc4-05ef-7975-a1a7-3516813eb70e","x-peerdb-additional-metadata":{"Operation":0},"duration":3451654,"deploymentUid":""}
++ grep -iE 'error|fatal|panic' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/worker.log
++ tail -2
++ true
++ for f in api worker snapshot-worker
++ echo '== snapshot-worker.log'
+== snapshot-worker.log
++ tail -3 /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/snapshot-worker.log
+{"time":"2026-10-08T23:05:48.266481304Z","level":"INFO","msg":"Found export list for temporal metrics","exportList":"","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.600773665Z","level":"INFO","msg":"Starting session worker","Namespace":"default","TaskQueue":"snapshot-flow-task-queue","WorkerID":"15116@firecode@","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.600791915Z","level":"INFO","msg":"Started Worker","Namespace":"default","TaskQueue":"snapshot-flow-task-queue","WorkerID":"15116@firecode@","deploymentUid":""}
++ grep -iE 'error|fatal|panic' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/snapshot-worker.log
++ tail -2
++ true
++ echo '--- processes ---'
+--- processes ---
++ ps aux
++ grep -E '[p]eerflow|[t]emporal server'
++ awk '{print $2, $11, $12}'
+15045 temporal server
+15115 peerflow worker
+15116 peerflow snapshot-worker
+15117 peerflow api
++ echo '02-run-peerdb.sh OK'
+02-run-peerdb.sh OK
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/03-mirror.sh
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/03-mirror.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ RES=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ mkdir -p /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ API=http://127.0.0.1:8113
++ peer pgsrc pgsrc
++ curl -sS -X POST http://127.0.0.1:8113/v1/peers/create -H 'Content-Type: application/json' -d @-
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/peer-pgsrc.json
+{"status":"CREATED", "message":""}+ echo
+
++ peer pgdst pgdst
++ curl -sS -X POST http://127.0.0.1:8113/v1/peers/create -H 'Content-Type: application/json' -d @-
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/peer-pgdst.json
+{"status":"CREATED", "message":""}+ echo
+
++ sudo -u postgres psql -d pgsrc -c 'drop table if exists public.t'
+NOTICE:  table "t" does not exist, skipping
+DROP TABLE
++ sudo -u postgres psql -d pgsrc -c 'create table public.t (id int primary key, v text)'
+CREATE TABLE
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1,20000) g'
+INSERT 0 20000
++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
+20000
++ cat
++ echo '--- creating mirror (initial snapshot ON) ---'
+--- creating mirror (initial snapshot ON) ---
++ post_create false
++ curl -sS -X POST http://127.0.0.1:8113/v1/flows/cdc/create -H 'Content-Type: application/json' -d @-
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/mirror-create.json
+++ cat /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/connection-configs.json
++ jq -n --argjson cc '{
+  "flowJobName":"pg2pg",
+  "sourceName":"pgsrc",
+  "destinationName":"pgdst",
+  "tableMappings":[{"sourceTableIdentifier":"public.t","destinationTableIdentifier":"public.t"}],
+  "system":"PG",
+  "doInitialSnapshot":true,
+  "snapshotNumRowsPerPartition":5000,
+  "snapshotMaxParallelWorkers":4,
+  "snapshotNumTablesInParallel":1,
+  "maxBatchSize":10000,
+  "idleTimeoutSeconds":15,
+  "cdcStagingPath":"",
+  "snapshotStagingPath":"",
+  "softDeleteColName":"",
+  "syncedAtColName":"",
+  "initialSnapshotOnly":false,
+  "resync":false,
+  "env":{},
+  "version":0,
+  "flags":[]
+}' --argjson attach false '{connectionConfigs:$cc, attachToExisting:$attach}'
+{"workflowId":"pg2pg-peerflow"}+ echo
+
++ grep -q 'flow already exists' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/mirror-create.json
++ grep -q '"code"' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/mirror-create.json
++ echo '--- mirror status ---'
+--- mirror status ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ tee /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/status.json
++ jq -c '.cdcStatuses[]? | {flowJobName,status,message}'
++ echo '--- waiting for the initial snapshot: destination must reach 20000 rows ---'
+--- waiting for the initial snapshot: destination must reach 20000 rows ---
++ ok=no
+++ seq 1 120
++ for i in $(seq 1 120)
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*) from public.t'
+++ echo none
++ n=none
++ '[' 1 -eq 0 ']'
++ '[' none = 20000 ']'
++ sleep 1
++ for i in $(seq 1 120)
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*) from public.t'
++ n=20000
++ '[' 2 -eq 0 ']'
++ '[' 20000 = 20000 ']'
++ ok=yes
++ echo 'INITIAL SNAPSHOT LANDED after 2s'
+INITIAL SNAPSHOT LANDED after 2s
++ break
++ '[' yes '!=' yes ']'
++ echo '--- replication slot as Postgres sees it ---'
+--- replication slot as Postgres sees it ---
++ sudo -u postgres psql -d pgsrc -c 'select slot_name, plugin, slot_type, active, restart_lsn from pg_replication_slots'
+      slot_name      |  plugin  | slot_type | active | restart_lsn 
+---------------------+----------+-----------+--------+-------------
+ peerflow_slot_pg2pg | pgoutput | logical   | f      | 0/29DC490
+(1 row)
+
++ echo '--- raw staging table on the destination, if the COPY path was used ---'
+--- raw staging table on the destination, if the COPY path was used ---
++ sudo -u postgres psql -d pgdst -tAc 'select table_schema||'\''.'\''||table_name from information_schema.tables where table_name like '\''_peerdb%'\'' order by 1'
+_peerdb_internal._peerdb_query_replication_metadata
+_peerdb_internal._peerdb_raw_pg2pg
++ echo '03-mirror.sh done (snapshot=yes)'
+03-mirror.sh done (snapshot=yes)
++ '[' yes = yes ']'
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/04-verify.sh
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/04-verify.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ RES=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ SUMQ='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo '--- source before CDC phase: 20000|200010000|e99cdd17463d67790009b9454d33067b'
+--- source before CDC phase: 20000|200010000|e99cdd17463d67790009b9454d33067b
+++ date +%s
++ t0=1791500754
++ for b in 1 2 3
++ lo=1
++ hi=2000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1,2000) g on conflict (id) do nothing'
++ echo 'inserted 1..2000'
+inserted 1..2000
++ sleep 2
++ for b in 1 2 3
++ lo=2001
++ hi=4000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(2001,4000) g on conflict (id) do nothing'
++ echo 'inserted 2001..4000'
+inserted 2001..4000
++ sleep 2
++ for b in 1 2 3
++ lo=4001
++ hi=6000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(4001,6000) g on conflict (id) do nothing'
++ echo 'inserted 4001..6000'
+inserted 4001..6000
++ sleep 2
++ sudo -u postgres psql -d pgsrc -c 'update public.t set v='\''UPDATED-'\''||id where id % 25 = 0'
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id % 100 = 0 and id > 20000'
++ echo '--- updates and deletes applied ---'
+--- updates and deletes applied ---
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ echo 'SOURCE: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+SOURCE: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ converged=no
+++ seq 1 150
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 6 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 7 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 8 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 9 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 0 -eq 0 ']'
++ echo 't+10s not yet: dst=20000|200010000|e99cdd17463d67790009b9454d33067b'
+t+10s not yet: dst=20000|200010000|e99cdd17463d67790009b9454d33067b
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
+++ date +%s
++ t1=1791500775
++ converged=yes
++ echo 'CONVERGED after 21s (CDC stream, not the initial snapshot)'
+CONVERGED after 21s (CDC stream, not the initial snapshot)
++ break
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ echo 'DESTINATION: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+DESTINATION: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ echo 'SOURCE     : 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+SOURCE     : 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ '[' yes = yes ']'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ echo 'RESULT: CDC confirmed - count, sum and content checksum match'
+RESULT: CDC confirmed - count, sum and content checksum match
++ echo '--- which write path: any evidence of COPY into the destination? ---'
+--- which write path: any evidence of COPY into the destination? ---
++ grep -inE 'via COPY|COPY|_peerdb_raw' /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results/worker.log
++ tail -10
+90:{"time":"2026-10-08T23:05:54.051661202Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1-252ff112-9e09-4da4-a11c-bd7f635c28d3","RunID":"01a11dc4-1c3a-70d7-a7b7-9bc5fca390b1","flowName":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"5d5f8f06-3e4e-4754-8c75-9d4ef3efc342","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(83,0)'  AND  '(124,65535)' ) TO STDOUT","deploymentUid":""}
+93:{"time":"2026-10-08T23:05:54.053421279Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1-4952bfa8-4473-479a-a9be-312e06104e8b","RunID":"01a11dc4-1c36-7d3a-892c-a3c0d58d3de7","flowName":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"10635025-3782-4204-9e50-4ee4566513d9","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(0,0)'  AND  '(40,65535)' ) TO STDOUT","deploymentUid":""}
+100:{"time":"2026-10-08T23:05:54.057037974Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1-be64f2f7-801f-4a93-baab-fa783a663f03","RunID":"01a11dc4-1c35-7e29-a106-7a504a805774","flowName":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"2ecb2d39-ce42-4fd0-9af0-dfffc567145d","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(125,0)'  AND  '(166,65535)' ) TO STDOUT","deploymentUid":""}
+105:{"time":"2026-10-08T23:05:54.059929672Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1-2cd72f6e-a09c-4f53-bf0c-e3142c6a07dc","RunID":"01a11dc4-1c38-787a-9aac-348dc99442b1","flowName":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"e4ddcc5d-09c7-4e95-a561-ab5bc9206b2d","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(41,0)'  AND  '(82,65535)' ) TO STDOUT","deploymentUid":""}
+148:{"time":"2026-10-08T23:05:54.323712583Z","level":"INFO","msg":"initial copy completed for peer flow","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","WorkflowType":"QRepFlowWorkflow","WorkflowID":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","RunID":"01a11dc4-1b37-7565-acd9-5e2373432be7","Attempt":1,"flowName":"clone_pg2pg_public_t_01a11dc4_1a71_70c4_b42e_661db7ebd2d1","deploymentUid":""}
+164:{"time":"2026-10-08T23:06:00.543109322Z","level":"INFO","msg":"pushing records to Postgres table _peerdb_raw_pg2pg via COPY","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"11","ActivityType":"SyncFlow","Attempt":1,"WorkflowType":"CDCFlowWorkflow","WorkflowID":"pg2pg-peerflow","RunID":"912526a3-5466-41ca-ba22-f3625aeeac5c","flowName":"pg2pg","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":1},"x-peerdb-additional-metadata":{"Operation":1},"deploymentUid":""}
+168:{"time":"2026-10-08T23:06:15.548207081Z","level":"INFO","msg":"synced 800 records to Postgres table _peerdb_raw_pg2pg via COPY","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"15115@firecode@","ActivityID":"11","ActivityType":"SyncFlow","Attempt":1,"WorkflowType":"CDCFlowWorkflow","WorkflowID":"pg2pg-peerflow","RunID":"912526a3-5466-41ca-ba22-f3625aeeac5c","flowName":"pg2pg","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":1},"x-peerdb-additional-metadata":{"Operation":1},"deploymentUid":""}
++ echo '--- batch accounting as the destination recorded it ---'
+--- batch accounting as the destination recorded it ---
++ sudo -u postgres psql -d pgdst -tAc 'select table_schema||'\''.'\''||table_name from information_schema.tables where table_name like '\''_peerdb%'\'' order by 1'
+_peerdb_internal._peerdb_query_replication_metadata
+_peerdb_internal._peerdb_raw_pg2pg
++ echo '--- mirror lag / slot ---'
+--- mirror lag / slot ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ jq -c '.cdcStatuses[]? | {flowJobName,status}'
++ sudo -u postgres psql -d pgsrc -tAc 'select slot_name,active,restart_lsn,confirmed_flush_lsn from pg_replication_slots'
+peerflow_slot_pg2pg|t|0/29DC490|0/2C7CD38
++ echo '04-verify.sh OK'
+04-verify.sh OK
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/05-cdc-cases.sh
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/05-cdc-cases.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ RES=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ SUM='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo '--- before: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+--- before: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ for b in 1 2 3
++ lo=200001
++ hi=202000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(200001,202000) g'
++ echo 'INSERTED new ids 200001..202000'
+INSERTED new ids 200001..202000
++ for b in 1 2 3
++ lo=202001
++ hi=204000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(202001,204000) g'
++ echo 'INSERTED new ids 202001..204000'
+INSERTED new ids 202001..204000
++ for b in 1 2 3
++ lo=204001
++ hi=206000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(204001,206000) g'
++ echo 'INSERTED new ids 204001..206000'
+INSERTED new ids 204001..206000
++ sudo -u postgres psql -d pgsrc -c 'update public.t set v='\''UPDATED-'\''||id where id % 25 = 0'
++ echo 'UPDATED  id % 25 = 0'
+UPDATED  id % 25 = 0
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id % 100 = 0 and id <= 20000'
++ echo 'DELETED  id % 100 = 0 (seeded range)'
+DELETED  id % 100 = 0 (seeded range)
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='25800|1416003000|da14b721dc4b42f18c926d822e586117'
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ src_n=25800
++ echo 'SOURCE: 25800|1416003000|da14b721dc4b42f18c926d822e586117 (count 25800)'
+SOURCE: 25800|1416003000|da14b721dc4b42f18c926d822e586117 (count 25800)
++ '[' 25800 '!=' 25800 ']'
+++ date +%s
++ t0=1791500776
++ converged=no
+++ seq 1 150
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 6 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 7 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 8 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 9 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 0 -eq 0 ']'
++ echo 't+10s dst=20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+t+10s dst=20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '25800|1416003000|da14b721dc4b42f18c926d822e586117' ']'
+++ date +%s
++ t1=1791500791
++ converged=yes
++ echo 'CONVERGED after 15s'
+CONVERGED after 15s
++ break
++ echo 'SOURCE     : 25800|1416003000|da14b721dc4b42f18c926d822e586117'
+SOURCE     : 25800|1416003000|da14b721dc4b42f18c926d822e586117
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo 'DESTINATION: 25800|1416003000|da14b721dc4b42f18c926d822e586117'
+DESTINATION: 25800|1416003000|da14b721dc4b42f18c926d822e586117
++ '[' yes = yes ']'
++ echo 'RESULT: INSERT + UPDATE + DELETE all propagated (count, sum and checksum match)'
+RESULT: INSERT + UPDATE + DELETE all propagated (count, sum and checksum match)
++ echo '05-cdc-cases.sh OK'
+05-cdc-cases.sh OK
++ bash /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/06-throughput.sh
++++ dirname /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/06-throughput.sh
+++ cd /Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/..
+++ pwd
++ REPO=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb
++ RES=/Users/dead/.cache/letibot/firecode/s-1791482165022641000-sub-1791500362877960000/peerdb/pg2pg/results
++ SUM='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ LO=1000001
++ HI=1200000
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id between 1000001 and 1200000'
++ echo 'cleared any previous measurement range; waiting for the destination to drain it'
+cleared any previous measurement range; waiting for the destination to drain it
+++ seq 1 60
++ for i in $(seq 1 60)
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ a=25800
+++ q pgdst 'select count(*) from public.t'
++ b=25800
++ '[' 25800 = 25800 ']'
++ echo 'drained after 1s (both at 25800 rows)'
+drained after 1s (both at 25800 rows)
++ break
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ before=25800
++ echo 'SOURCE ROWS BEFORE: 25800   (adding 200000 ids 1000001..1200000)'
+SOURCE ROWS BEFORE: 25800   (adding 200000 ids 1000001..1200000)
+++ date +%s%N
++ t0=1791500791418358630
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1000001,1200000) g'
+++ date +%s%N
++ t_commit=1791500791665821769
++ echo 'statement wall time: 247 ms'
+statement wall time: 247 ms
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ src_n=225800
++ expected=225800
++ '[' 225800 = 225800 ']'
++ converged=no
+++ seq 1 300
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='225800|221416103000|b9c08b64438045f7859002ce6a986c41'
++ '[' '225800|221416103000|b9c08b64438045f7859002ce6a986c41' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
+++ date +%s%N
++ t_done=1791500793828772337
++ converged=yes
++ break
++ '[' yes = yes ']'
++ ms=2162
++ echo 'CONVERGED: 200000 rows applied in 2.1s after commit'
+CONVERGED: 200000 rows applied in 2.1s after commit
++ echo 'MEASURED THROUGHPUT: 92506 rows/sec end-to-end'
+MEASURED THROUGHPUT: 92506 rows/sec end-to-end
++ echo '    scope: one firecode VM (4 vCPU, 7.9GB), catalog+source+destination in ONE'
+    scope: one firecode VM (4 vCPU, 7.9GB), catalog+source+destination in ONE
++ echo '    PostgreSQL 18 instance, no concurrent write load, NO BASELINE RUN. This is a'
+    PostgreSQL 18 instance, no concurrent write load, NO BASELINE RUN. This is a
++ echo '    floor on this machine; it is not the project'\''s 10x or 10k tps claim.'
+    floor on this machine; it is not the project's 10x or 10k tps claim.
++ echo 'SOURCE     : 225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+SOURCE     : 225800|221416103000|b9c08b64438045f7859002ce6a986c41
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo 'DESTINATION: 225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+DESTINATION: 225800|221416103000|b9c08b64438045f7859002ce6a986c41
++ echo '--- replication slot at the end ---'
+--- replication slot at the end ---
++ sudo -u postgres psql -d pgsrc -c 'select slot_name, plugin, slot_type, active, restart_lsn, confirmed_flush_lsn from pg_replication_slots'
+      slot_name      |  plugin  | slot_type | active | restart_lsn | confirmed_flush_lsn 
+---------------------+----------+-----------+--------+-------------+---------------------
+ peerflow_slot_pg2pg | pgoutput | logical   | t      | 0/2C81BD8   | 0/4FF5D10
+(1 row)
+
++ echo '--- mirror status ---'
+--- mirror status ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ jq -c '.cdcStatuses[]? | {flowJobName,status}'
++ echo '06-throughput.sh OK'
+06-throughput.sh OK
++ echo 'run.sh: PG->PG mirror created and CDC verified'
+run.sh: PG->PG mirror created and CDC verified

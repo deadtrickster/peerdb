@@ -1,0 +1,20 @@
+2026/10/08 23:05:48 maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined
+{"time":"2026-10-08T23:05:48.26243636Z","level":"INFO","msg":"Found export list for temporal metrics","exportList":"","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.264122646Z","level":"WARN","msg":"OAuth is disabled","error":"no identity providers configured","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.264134021Z","level":"WARN","msg":"authentication is disabled","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.264136646Z","level":"INFO","msg":"Request Logging Interceptor is disabled","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.268119423Z","level":"INFO","msg":"Requesting cancellation of pre-existing scheduler flows","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.268775629Z","level":"INFO","msg":"Requesting cancellation of pre-existing scheduler flows","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.273673652Z","level":"INFO","msg":"Starting API server on port","port":8112,"deploymentUid":""}
+{"time":"2026-10-08T23:05:48.273723277Z","level":"INFO","msg":"Starting API gateway","port":8113,"deploymentUid":""}
+{"time":"2026-10-08T23:05:48.273754527Z","level":"WARN","msg":"Encryption disabled. This is not recommended.","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.27382336Z","level":"WARN","msg":"Encryption disabled. This is not recommended.","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.275269355Z","level":"INFO","msg":"recrypt finished","tag":"alert config","deploymentUid":""}
+{"time":"2026-10-08T23:05:48.278580926Z","level":"INFO","msg":"recrypt finished","tag":"peer","deploymentUid":""}
+{"time":"2026-10-08T23:05:53.280297813Z","level":"INFO","msg":"[flow activity] create_peer","action":"create_peer","requestId":"5f785480-04e3-4f66-873c-22aaba065451","x-peerdb-request-id":"5f785480-04e3-4f66-873c-22aaba065451","deploymentUid":""}
+{"time":"2026-10-08T23:05:53.293305432Z","level":"INFO","msg":"[flow activity] create_peer","action":"create_peer","requestId":"910614c9-1ab9-44e0-b6c7-e9e2e358ff96","x-peerdb-request-id":"910614c9-1ab9-44e0-b6c7-e9e2e358ff96","deploymentUid":""}
+{"time":"2026-10-08T23:05:53.3954886Z","level":"INFO","msg":"set wal_sender_timeout","flowName":"pg2pg","x-peerdb-additional-metadata":{"Operation":0},"x-peerdb-request-id":"6b41c176-2d95-46b6-8962-779eee2a603c","wal_sender_timeout":"120s"}
+{"time":"2026-10-08T23:05:53.399020379Z","level":"INFO","msg":"[postgres] executing DDL statement","flowName":"pg2pg","x-peerdb-additional-metadata":{"Operation":0},"x-peerdb-request-id":"6b41c176-2d95-46b6-8962-779eee2a603c","query":"CREATE PUBLICATION _peerdb_tmp_test_publication_hmzeu FOR TABLE \"public\".\"t\" WITH(publish_via_partition_root=true)"}
+{"time":"2026-10-08T23:05:53.411649499Z","level":"INFO","msg":"fetched schema","flowName":"pg2pg","x-peerdb-additional-metadata":{"Operation":0},"x-peerdb-request-id":"6b41c176-2d95-46b6-8962-779eee2a603c","table":"public.t"}
+{"time":"2026-10-08T23:05:53.418740765Z","level":"INFO","msg":"[flow activity] create_flow","action":"create_flow","requestId":"6b41c176-2d95-46b6-8962-779eee2a603c","flowName":"pg2pg","x-peerdb-request-id":"6b41c176-2d95-46b6-8962-779eee2a603c","deploymentUid":""}
+{"time":"2026-10-08T23:08:56.103221711Z","level":"INFO","msg":"Server has been shut down gracefully. Exiting...","deploymentUid":""}

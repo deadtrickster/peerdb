@@ -1,0 +1,128 @@
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ RES=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ mkdir -p /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ API=http://127.0.0.1:8113
++ peer pgsrc pgsrc
++ curl -sS -X POST http://127.0.0.1:8113/v1/peers/create -H 'Content-Type: application/json' -d @-
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/peer-pgsrc.json
+{"status":"CREATED", "message":""}+ echo
+
++ peer pgdst pgdst
++ curl -sS -X POST http://127.0.0.1:8113/v1/peers/create -H 'Content-Type: application/json' -d @-
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/peer-pgdst.json
+{"status":"CREATED", "message":""}+ echo
+
++ sudo -u postgres psql -d pgsrc -c 'drop table if exists public.t'
+DROP TABLE
++ sudo -u postgres psql -d pgsrc -c 'create table public.t (id int primary key, v text)'
+CREATE TABLE
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1,20000) g'
+INSERT 0 20000
++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
+20000
++ cat
++ echo '--- creating mirror (initial snapshot ON) ---'
+--- creating mirror (initial snapshot ON) ---
++ post_create false
++ curl -sS -X POST http://127.0.0.1:8113/v1/flows/cdc/create -H 'Content-Type: application/json' -d @-
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/mirror-create.json
+++ cat /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/connection-configs.json
++ jq -n --argjson cc '{
+  "flowJobName":"pg2pg",
+  "sourceName":"pgsrc",
+  "destinationName":"pgdst",
+  "tableMappings":[{"sourceTableIdentifier":"public.t","destinationTableIdentifier":"public.t"}],
+  "system":"PG",
+  "doInitialSnapshot":true,
+  "snapshotNumRowsPerPartition":5000,
+  "snapshotMaxParallelWorkers":4,
+  "snapshotNumTablesInParallel":1,
+  "maxBatchSize":10000,
+  "idleTimeoutSeconds":15,
+  "cdcStagingPath":"",
+  "snapshotStagingPath":"",
+  "softDeleteColName":"",
+  "syncedAtColName":"",
+  "initialSnapshotOnly":false,
+  "resync":false,
+  "env":{},
+  "version":0,
+  "flags":[]
+}' --argjson attach false '{connectionConfigs:$cc, attachToExisting:$attach}'
+{"code":6, "message":"flow already exists: pg2pg", "details":[]}+ echo
+
++ grep -q 'flow already exists' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/mirror-create.json
++ echo '--- flow already exists in the catalog; re-posting with attachToExisting=true ---'
+--- flow already exists in the catalog; re-posting with attachToExisting=true ---
++ post_create true
++ curl -sS -X POST http://127.0.0.1:8113/v1/flows/cdc/create -H 'Content-Type: application/json' -d @-
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/mirror-create.json
+++ cat /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/connection-configs.json
++ jq -n --argjson cc '{
+  "flowJobName":"pg2pg",
+  "sourceName":"pgsrc",
+  "destinationName":"pgdst",
+  "tableMappings":[{"sourceTableIdentifier":"public.t","destinationTableIdentifier":"public.t"}],
+  "system":"PG",
+  "doInitialSnapshot":true,
+  "snapshotNumRowsPerPartition":5000,
+  "snapshotMaxParallelWorkers":4,
+  "snapshotNumTablesInParallel":1,
+  "maxBatchSize":10000,
+  "idleTimeoutSeconds":15,
+  "cdcStagingPath":"",
+  "snapshotStagingPath":"",
+  "softDeleteColName":"",
+  "syncedAtColName":"",
+  "initialSnapshotOnly":false,
+  "resync":false,
+  "env":{},
+  "version":0,
+  "flags":[]
+}' --argjson attach true '{connectionConfigs:$cc, attachToExisting:$attach}'
+{"workflowId":"pg2pg-peerflow"}+ echo
+
++ grep -q '"code"' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/mirror-create.json
++ echo '--- mirror status ---'
+--- mirror status ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ tee /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/status.json
++ jq -c '.cdcStatuses[]? | {flowJobName,status,message}'
++ echo '--- waiting for the initial snapshot: destination must reach 20000 rows ---'
+--- waiting for the initial snapshot: destination must reach 20000 rows ---
++ ok=no
+++ seq 1 120
++ for i in $(seq 1 120)
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*) from public.t'
+++ echo none
++ n=none
++ '[' 1 -eq 0 ']'
++ '[' none = 20000 ']'
++ sleep 1
++ for i in $(seq 1 120)
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*) from public.t'
++ n=20000
++ '[' 2 -eq 0 ']'
++ '[' 20000 = 20000 ']'
++ ok=yes
++ echo 'INITIAL SNAPSHOT LANDED after 2s'
+INITIAL SNAPSHOT LANDED after 2s
++ break
++ '[' yes '!=' yes ']'
++ echo '--- replication slot as Postgres sees it ---'
+--- replication slot as Postgres sees it ---
++ sudo -u postgres psql -d pgsrc -c 'select slot_name, plugin, slot_type, active, restart_lsn from pg_replication_slots'
+      slot_name      |  plugin  | slot_type | active | restart_lsn 
+---------------------+----------+-----------+--------+-------------
+ peerflow_slot_pg2pg | pgoutput | logical   | f      | 0/36F3FE8
+(1 row)
+
++ echo '--- raw staging table on the destination, if the COPY path was used ---'
+--- raw staging table on the destination, if the COPY path was used ---
++ sudo -u postgres psql -d pgdst -tAc 'select table_schema||'\''.'\''||table_name from information_schema.tables where table_name like '\''_peerdb%'\'' order by 1'
+_peerdb_internal._peerdb_query_replication_metadata
+_peerdb_internal._peerdb_raw_pg2pg
++ echo '03-mirror.sh done (snapshot=yes)'
+03-mirror.sh done (snapshot=yes)
++ '[' yes = yes ']'
+EXIT=0

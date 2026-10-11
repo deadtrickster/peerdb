@@ -1,0 +1,22 @@
+{
+  "flowJobName":"pg2pg",
+  "sourceName":"pgsrc",
+  "destinationName":"pgdst",
+  "tableMappings":[{"sourceTableIdentifier":"public.t","destinationTableIdentifier":"public.t"}],
+  "system":"PG",
+  "doInitialSnapshot":true,
+  "snapshotNumRowsPerPartition":5000,
+  "snapshotMaxParallelWorkers":4,
+  "snapshotNumTablesInParallel":1,
+  "maxBatchSize":10000,
+  "idleTimeoutSeconds":15,
+  "cdcStagingPath":"",
+  "snapshotStagingPath":"",
+  "softDeleteColName":"",
+  "syncedAtColName":"",
+  "initialSnapshotOnly":false,
+  "resync":false,
+  "env":{},
+  "version":0,
+  "flags":[]
+}

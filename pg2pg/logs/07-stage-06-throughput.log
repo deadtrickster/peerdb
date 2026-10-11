@@ -1,0 +1,110 @@
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ RES=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ SUM='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ LO=1000001
++ HI=1200000
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id between 1000001 and 1200000'
++ echo 'cleared any previous measurement range; waiting for the destination to drain it'
+cleared any previous measurement range; waiting for the destination to drain it
+++ seq 1 60
++ for i in $(seq 1 60)
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ a=25800
+++ q pgdst 'select count(*) from public.t'
++ b=225800
++ '[' 25800 = 225800 ']'
++ sleep 1
++ for i in $(seq 1 60)
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ a=25800
+++ q pgdst 'select count(*) from public.t'
++ b=225800
++ '[' 25800 = 225800 ']'
++ sleep 1
++ for i in $(seq 1 60)
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ a=25800
+++ q pgdst 'select count(*) from public.t'
++ b=25800
++ '[' 25800 = 25800 ']'
++ echo 'drained after 3s (both at 25800 rows)'
+drained after 3s (both at 25800 rows)
++ break
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ before=25800
++ echo 'SOURCE ROWS BEFORE: 25800   (adding 200000 ids 1000001..1200000)'
+SOURCE ROWS BEFORE: 25800   (adding 200000 ids 1000001..1200000)
+++ date +%s%N
++ t0=1791488621400031353
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1000001,1200000) g'
+++ date +%s%N
++ t_commit=1791488621711446509
++ echo 'statement wall time: 311 ms'
+statement wall time: 311 ms
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+++ q pgsrc 'select count(*) from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*) from public.t'
++ src_n=225800
++ expected=225800
++ '[' 225800 = 225800 ']'
++ converged=no
+++ seq 1 300
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='25800|1416003000|da14b721dc4b42f18c926d822e586117'
++ '[' '25800|1416003000|da14b721dc4b42f18c926d822e586117' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 300)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='225800|221416103000|b9c08b64438045f7859002ce6a986c41'
++ '[' '225800|221416103000|b9c08b64438045f7859002ce6a986c41' = '225800|221416103000|b9c08b64438045f7859002ce6a986c41' ']'
+++ date +%s%N
++ t_done=1791488623883278699
++ converged=yes
++ break
++ '[' yes = yes ']'
++ ms=2171
++ echo 'CONVERGED: 200000 rows applied in 2.1s after commit'
+CONVERGED: 200000 rows applied in 2.1s after commit
++ echo 'MEASURED THROUGHPUT: 92123 rows/sec end-to-end'
+MEASURED THROUGHPUT: 92123 rows/sec end-to-end
++ echo '    scope: one firecode VM (4 vCPU, 7.9GB), catalog+source+destination in ONE'
+    scope: one firecode VM (4 vCPU, 7.9GB), catalog+source+destination in ONE
++ echo '    PostgreSQL 18 instance, no concurrent write load, NO BASELINE RUN. This is a'
+    PostgreSQL 18 instance, no concurrent write load, NO BASELINE RUN. This is a
++ echo '    floor on this machine; it is not the project'\''s 10x or 10k tps claim.'
+    floor on this machine; it is not the project's 10x or 10k tps claim.
++ echo 'SOURCE     : 225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+SOURCE     : 225800|221416103000|b9c08b64438045f7859002ce6a986c41
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgdst -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo 'DESTINATION: 225800|221416103000|b9c08b64438045f7859002ce6a986c41'
+DESTINATION: 225800|221416103000|b9c08b64438045f7859002ce6a986c41
++ echo '--- replication slot at the end ---'
+--- replication slot at the end ---
++ sudo -u postgres psql -d pgsrc -c 'select slot_name, plugin, slot_type, active, restart_lsn, confirmed_flush_lsn from pg_replication_slots'
+      slot_name      |  plugin  | slot_type | active | restart_lsn | confirmed_flush_lsn 
+---------------------+----------+-----------+--------+-------------+---------------------
+ peerflow_slot_pg2pg | pgoutput | logical   | t      | 0/B19A690   | 0/11ADBFB0
+(1 row)
+
++ echo '--- mirror status ---'
+--- mirror status ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ jq -c '.cdcStatuses[]? | {flowJobName,status}'
++ echo '06-throughput.sh OK'
+06-throughput.sh OK
+EXIT=0

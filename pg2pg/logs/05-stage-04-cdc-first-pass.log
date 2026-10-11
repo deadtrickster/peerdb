@@ -1,0 +1,178 @@
++ REPO=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb
++ RES=/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results
++ SUMQ='select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ echo '--- source before CDC phase: 20000|200010000|e99cdd17463d67790009b9454d33067b'
+--- source before CDC phase: 20000|200010000|e99cdd17463d67790009b9454d33067b
+++ date +%s
++ t0=1791488523
++ for b in 1 2 3
++ lo=1
++ hi=2000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(1,2000) g on conflict (id) do nothing'
++ echo 'inserted 1..2000'
+inserted 1..2000
++ sleep 2
++ for b in 1 2 3
++ lo=2001
++ hi=4000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(2001,4000) g on conflict (id) do nothing'
++ echo 'inserted 2001..4000'
+inserted 2001..4000
++ sleep 2
++ for b in 1 2 3
++ lo=4001
++ hi=6000
++ sudo -u postgres psql -d pgsrc -c 'insert into public.t (id,v) select g, md5(g::text) from generate_series(4001,6000) g on conflict (id) do nothing'
++ echo 'inserted 4001..6000'
+inserted 4001..6000
++ sleep 2
++ sudo -u postgres psql -d pgsrc -c 'update public.t set v='\''UPDATED-'\''||id where id % 25 = 0'
++ sudo -u postgres psql -d pgsrc -c 'delete from public.t where id % 100 = 0 and id > 20000'
++ echo '--- updates and deletes applied ---'
+--- updates and deletes applied ---
+++ q pgsrc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
+++ sudo -u postgres psql -d pgsrc -tAc 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ src='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ echo 'SOURCE: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+SOURCE: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ converged=no
+++ seq 1 150
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 6 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 7 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 8 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 9 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 0 -eq 0 ']'
++ echo 't+10s not yet: dst=20000|200010000|e99cdd17463d67790009b9454d33067b'
+t+10s not yet: dst=20000|200010000|e99cdd17463d67790009b9454d33067b
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 1 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 2 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 3 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 4 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|e99cdd17463d67790009b9454d33067b'
++ '[' '20000|200010000|e99cdd17463d67790009b9454d33067b' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ '[' 5 -eq 0 ']'
++ sleep 1
++ for i in $(seq 1 150)
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
+++ date +%s
++ t1=1791488544
++ converged=yes
++ echo 'CONVERGED after 21s (CDC stream, not the initial snapshot)'
+CONVERGED after 21s (CDC stream, not the initial snapshot)
++ break
+++ q pgdst 'select count(*)||'\''|'\''||coalesce(sum(id),0)||'\''|'\''||coalesce(md5(string_agg(id||'\'':'\''||v,'\'','\'' order by id)),'\''-'\'') from public.t'
++ dst='20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
++ echo 'DESTINATION: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+DESTINATION: 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ echo 'SOURCE     : 20000|200010000|af3cf656aca365d49af63026e0dc4bc9'
+SOURCE     : 20000|200010000|af3cf656aca365d49af63026e0dc4bc9
++ '[' yes = yes ']'
++ '[' '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' = '20000|200010000|af3cf656aca365d49af63026e0dc4bc9' ']'
++ echo 'RESULT: CDC confirmed - count, sum and content checksum match'
+RESULT: CDC confirmed - count, sum and content checksum match
++ echo '--- which write path: any evidence of COPY into the destination? ---'
+--- which write path: any evidence of COPY into the destination? ---
++ grep -inE 'via COPY|COPY|_peerdb_raw' /var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/vm/peerdb/peerdb/pg2pg/results/worker.log
++ tail -10
+166:{"time":"2026-10-08T19:41:51.015043568Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401-afbbb7d6-2b63-40b8-af2a-e51ea1e5b7d6","RunID":"01a11d09-4bd9-70a2-8520-1a95e19a1201","flowName":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"1d7ad212-afd1-42b3-90cc-bc331618626d","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(125,0)'  AND  '(166,65535)' ) TO STDOUT","deploymentUid":""}
+176:{"time":"2026-10-08T19:41:51.019639225Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401-4387b549-ee21-4936-aa05-265a35c1b66f","RunID":"01a11d09-4bda-7100-bc8d-d03b5761e3fa","flowName":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"7eb42d51-2ae7-4962-a9c6-47ef1f9baa08","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(83,0)'  AND  '(124,65535)' ) TO STDOUT","deploymentUid":""}
+178:{"time":"2026-10-08T19:41:51.020095353Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401-86e68d90-7752-4a85-a482-cacf31a30652","RunID":"01a11d09-4bdb-777b-87aa-8c314bfc1ff0","flowName":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"170b9ae7-cf60-4398-8b54-2d14e37c82e5","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(41,0)'  AND  '(82,65535)' ) TO STDOUT","deploymentUid":""}
+184:{"time":"2026-10-08T19:41:51.024592676Z","level":"INFO","msg":"[pg_query_executor] executing copy","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"5","ActivityType":"ReplicateQRepPartitions","Attempt":1,"WorkflowType":"QRepPartitionWorkflow","WorkflowID":"qrep-part-clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401-e346cd10-cd72-4349-8b44-a6d9f21270de","RunID":"01a11d09-4bdc-79e2-accd-413d7b074b26","flowName":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":4},"x-peerdb-additional-metadata":{"Operation":0},"partitionId":"13777108-a843-431b-a5ea-50cbb6584252","query":"COPY (SELECT * FROM \"public\".\"t\" WHERE \"ctid\" BETWEEN  '(0,0)'  AND  '(40,65535)' ) TO STDOUT","deploymentUid":""}
+228:{"time":"2026-10-08T19:41:51.288092443Z","level":"INFO","msg":"initial copy completed for peer flow","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","WorkflowType":"QRepFlowWorkflow","WorkflowID":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","RunID":"01a11d09-4ae0-7192-baca-8e661a624d4a","Attempt":1,"flowName":"clone_pg2pg_public_t_01a11d09_4a19_7601_947f_e3df2e767401","deploymentUid":""}
+266:{"time":"2026-10-08T19:42:09.195198288Z","level":"INFO","msg":"pushing records to Postgres table _peerdb_raw_pg2pg via COPY","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"11","ActivityType":"SyncFlow","Attempt":1,"WorkflowType":"CDCFlowWorkflow","WorkflowID":"pg2pg-peerflow","RunID":"739aecac-c7cd-433d-a9aa-0d1b2043755f","flowName":"pg2pg","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":1},"x-peerdb-additional-metadata":{"Operation":1},"deploymentUid":""}
+270:{"time":"2026-10-08T19:42:24.197426631Z","level":"INFO","msg":"synced 800 records to Postgres table _peerdb_raw_pg2pg via COPY","Namespace":"default","TaskQueue":"peer-flow-task-queue","WorkerID":"6370@firecode@","ActivityID":"11","ActivityType":"SyncFlow","Attempt":1,"WorkflowType":"CDCFlowWorkflow","WorkflowID":"pg2pg-peerflow","RunID":"739aecac-c7cd-433d-a9aa-0d1b2043755f","flowName":"pg2pg","x-peerdb-flow-metadata":{"flow_name":"pg2pg","source":{"name":"pgsrc","type":3,"hostname":"127.0.0.1"},"destination":{"name":"pgdst","type":3,"hostname":"127.0.0.1"},"status":1},"x-peerdb-additional-metadata":{"Operation":1},"deploymentUid":""}
++ echo '--- batch accounting as the destination recorded it ---'
+--- batch accounting as the destination recorded it ---
++ sudo -u postgres psql -d pgdst -tAc 'select table_schema||'\''.'\''||table_name from information_schema.tables where table_name like '\''_peerdb%'\'' order by 1'
+_peerdb_internal._peerdb_query_replication_metadata
+_peerdb_internal._peerdb_raw_pg2pg
++ echo '--- mirror lag / slot ---'
+--- mirror lag / slot ---
++ curl -sS http://127.0.0.1:8113/v1/mirrors/status
++ jq -c '.cdcStatuses[]? | {flowJobName,status}'
++ sudo -u postgres psql -d pgsrc -tAc 'select slot_name,active,restart_lsn,confirmed_flush_lsn from pg_replication_slots'
+peerflow_slot_pg2pg|t|0/3968400|0/3B43CE0
++ echo '04-verify.sh OK'
+04-verify.sh OK
+EXIT=0
