@@ -190,3 +190,22 @@ has by construction — each one cost an attempt, and each hid until the stack w
 3. **`tilt down` does not stop the Tilt process**, only its resources. A leftover instance keeps
    the port, later commands answer from it, and every wait fails against a stack that was never
    created. Free the port by pid before starting a new one.
+
+**The full set, attempted (2026-10-11).** The union of the CI jobs' `ancillary_services` —
+`otel-collector toxiproxy openssh clickhouse clickhouse-keeper clickhouse-02 postgres postgres2
+mongodb cockroachdb` — came up **8 of 10**: everything Ready, including the ClickHouse trio with
+their provisioners, the Postgres pair and CockroachDB. `mongodb` cannot start at all:
+
+    MongoDB cannot start: Linux kernel versions 6.19 and newer has a known incompatibility
+    with this version of MongoDB. See https://jira.mongodb.org/browse/SERVER-121912
+
+The guest kernel is `7.0.0-38-generic`. That is a **version delta, not a runtime gap**: the same
+pinned image will fail on any runner whose kernel reaches 6.19, CI's included, eventually. So
+`mongo_clickhouse` and `switchboard_mongo` are unrunnable in a guest until that pin is bumped; the
+other seven packages are not blocked by anything found here. (Architecture is the third axis and
+nobody tripped it: every image pulled had an arm64 build.)
+
+One methodological note from that attempt: a service that can never become Ready costs **twice**
+whatever timeout you give it if you continue past failure, because its `provision-` resource is
+waited on next. CI's shape — 600 s, print the resource's log, abort the job — is the better one;
+continuing is only worth it if you skip the failed service rather than wait on its provisioner.
