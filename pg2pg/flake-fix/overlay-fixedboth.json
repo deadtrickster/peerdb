@@ -1,0 +1,8 @@
+{
+  "Replace": {
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/pgdump_schema.go": "/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/killed/pgdump_schema.fixedboth.go",
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/zz_killed_src_test.go": "/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/killed/zz_killed_src_test.go",
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/zz_cancel_test.go": "/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/killed/zz_cancel_test.go",
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/zz_exited_test.go": "/var/folders/dd/r86fv54927ndyx8wc8mtp2_40000gn/T/letibot-501/scratch-70224/killed/zz_exited_test.go"
+  }
+}

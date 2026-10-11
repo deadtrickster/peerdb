@@ -1,0 +1,6 @@
+{
+  "Replace": {
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/pgdump_schema.go": "/Users/dead/Projects/peerdb/peerdb/pg2pg/flake-fix/pgdump_schema.fixed.go",
+    "/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres/zz_cancel_test.go": "/Users/dead/Projects/peerdb/peerdb/pg2pg/flake-fix/zz_cancel_test.go"
+  }
+}

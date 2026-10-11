@@ -136,14 +136,22 @@ cancellation test above names `dst` while the guest named `src`.
 kill. Until that runs, the honest statement is: two adjacent defects reproduced, one of them
 fixed; the original occurrence still unexplained.
 
-**What is in `flake-fix/`.** `patch.diff` (applies cleanly; fixes A only),
-`zz_killed_src_test.go` (the invariant test for A — deterministic, fails before and passes after),
-`zz_cancel_test.go` (the red for B, **not** fixed by the patch), `zz_exited_test.go` (both sides
-exiting 0 still reports the message — what refuted the zombie reasoning), the fixed and mutated
-sources, `reproduce.sh` for the A phases, and the overlay JSONs for the rest. Nothing is applied
-to the tree.
+**What is in `flake-fix/`.** Two patches, both applying cleanly (`git apply --check`):
+`patch.diff` fixes **A only**; `patch-both.diff` fixes **A and B** — the same two conditions plus a
+context check that names the cancellation before the peer errors are considered. Tests for each
+red: `zz_killed_src_test.go` (A), `zz_cancel_test.go` (B), `zz_exited_test.go` (what refuted the
+zombie reasoning), plus the fixed and mutated sources, `reproduce.sh` for the A phases, and the
+overlay JSONs for the rest. Nothing is applied to the tree.
 
-Whoever lands `patch.diff` should decide B separately: reporting `ctx.Err()` when the context is
-done would name the real cause, which also improves the production paths that cancel a running
-dump. `TestRunPipeline_FilterStripsLines` itself may need nothing at all — if the guest's kill came
-from the OOM killer, the test is innocent and its one failure was a symptom of the environment.
+**Why B needs its own lines rather than falling out of A's fix.** The guard is about *agency* —
+“did this function kill it?” — and in B nothing here called `Kill()`; `exec`'s Cancel did. So
+`srcKilled` is false, the guard passes, and the signal death is reported as before. Demonstrated
+rather than asserted: with `patch.diff` (A only) the cancellation test still fails 2/2 with
+`dst failed: signal: killed`; with `patch-both.diff` all four tests pass, three times over.
+
+**The one policy question in `patch-both.diff`.** When a real peer failure *and* a cancellation
+are both present, it reports the cancellation. Both are now distinguishable by the caller, so the
+choice is reversible — but it is a choice, and it belongs to whoever maintains this function.
+
+`TestRunPipeline_FilterStripsLines` itself may need nothing at all — if the guest's kill came from
+the OOM killer, the test is innocent and its one failure was a symptom of the environment.
