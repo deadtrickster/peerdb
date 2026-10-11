@@ -1,0 +1,3 @@
++ cd /Users/dead/Projects/peerdb/peerdb/nexus
++ cargo clean
+     Removed 11426 files, 8.1GiB total

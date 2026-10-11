@@ -1,0 +1,85 @@
++ cd /Users/dead/Projects/peerdb/peerdb/flow
++ go test ./... -timeout 600s
+go: downloading github.com/moby/moby/api v1.56.0
+go: downloading github.com/testcontainers/testcontainers-go v0.44.0
+go: downloading go.uber.org/goleak v1.3.0
+go: downloading golang.org/x/tools v0.50.0
+go: downloading golang.org/x/mod v0.41.0
+go: downloading github.com/containerd/errdefs v1.0.0
+go: downloading dario.cat/mergo v1.0.2
+go: downloading github.com/containerd/platforms v0.2.1
+go: downloading github.com/cenkalti/backoff/v4 v4.3.0
+go: downloading github.com/cpuguy83/dockercfg v0.3.2
+go: downloading github.com/moby/go-archive v0.2.0
+go: downloading github.com/moby/moby/client v0.5.1
+go: downloading github.com/moby/patternmatcher v0.6.1
+go: downloading github.com/opencontainers/image-spec v1.1.1
+go: downloading github.com/moby/docker-image-spec v1.3.1
+go: downloading github.com/containerd/log v0.1.0
+go: downloading github.com/moby/sys/sequential v0.7.0
+go: downloading github.com/moby/sys/user v0.4.0
+go: downloading github.com/moby/sys/userns v0.1.0
+go: downloading github.com/magiconair/properties v1.8.10
+go: downloading github.com/shirou/gopsutil/v4 v4.26.6
+go: downloading github.com/containerd/errdefs/pkg v0.3.0
+go: downloading github.com/moby/term v0.5.2
+go: downloading github.com/distribution/reference v0.6.0
+go: downloading github.com/docker/go-connections v0.8.1
+go: downloading github.com/opencontainers/go-digest v1.0.0
+go: downloading github.com/sirupsen/logrus v1.9.4
+?   	github.com/PeerDB-io/peerdb/flow	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/activities	0.033s
+ok  	github.com/PeerDB-io/peerdb/flow/alerting	0.159s
+ok  	github.com/PeerDB-io/peerdb/flow/cmd	1.029s
+?   	github.com/PeerDB-io/peerdb/flow/cmd/codegen	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/bigquery	0.017s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/clickhouse	0.077s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/cockroachdb	0.055s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/elasticsearch	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/eventhub	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/external_metadata	0.025s [no tests to run]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/kafka	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/mongo	0.037s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/mysql	0.087s
+2026/10/11 16:35:47 INFO LoadEnv: starting search cwd=/Users/dead/Projects/peerdb/peerdb/flow/connectors/postgres
+2026/10/11 16:35:47 WARN LoadEnv: no .env file found above flow directory
+--- FAIL: TestRunPipeline_FilterStripsLines (0.00s)
+    pgdump_schema_test.go:265: unexpected error: src failed: signal: killed
+        stderr:
+2026/10/11 16:35:47 INFO child tables detected flowName=testOffsetBounds table="" numChildTables=3 totalBlocks=155
+2026/10/11 16:35:47 INFO generated partitions for child tables flowName=testOffsetBounds numPartitions=8 blocksPerPartition=20 totalBlocks=155
+FAIL
+FAIL	github.com/PeerDB-io/peerdb/flow/connectors/postgres	0.148s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/postgres/sanitize	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/pubsub	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/s3	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/snowflake	0.030s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/utils	2.029s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/utils/monitoring	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/utils/structured	0.036s
+ok  	github.com/PeerDB-io/peerdb/flow/db	0.015s [no tests to run]
+?   	github.com/PeerDB-io/peerdb/flow/e2e	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/e2eshared	0.019s
+?   	github.com/PeerDB-io/peerdb/flow/generated/grpc_handler	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/generated/protos	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/internal	0.037s
+ok  	github.com/PeerDB-io/peerdb/flow/internal/clickhouse	0.014s
+ok  	github.com/PeerDB-io/peerdb/flow/middleware	0.015s
+ok  	github.com/PeerDB-io/peerdb/flow/model	69.147s
+ok  	github.com/PeerDB-io/peerdb/flow/model/qvalue	0.072s
+ok  	github.com/PeerDB-io/peerdb/flow/otel_metrics	0.012s
+ok  	github.com/PeerDB-io/peerdb/flow/proto_conversions	0.004s
+ok  	github.com/PeerDB-io/peerdb/flow/pua	0.009s
+ok  	github.com/PeerDB-io/peerdb/flow/shared	0.028s
+?   	github.com/PeerDB-io/peerdb/flow/shared/aws_common	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/shared/concurrency	0.005s
+ok  	github.com/PeerDB-io/peerdb/flow/shared/datatypes	0.009s
+ok  	github.com/PeerDB-io/peerdb/flow/shared/exceptions	0.154s
+?   	github.com/PeerDB-io/peerdb/flow/shared/telemetry	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/shared/types	0.012s
+?   	github.com/PeerDB-io/peerdb/flow/switchboard	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/switchboard/mongodb	0.009s
+ok  	github.com/PeerDB-io/peerdb/flow/workflows	0.202s
+?   	github.com/PeerDB-io/peerdb/flow/workflows/cdc_state	[no test files]
+FAIL

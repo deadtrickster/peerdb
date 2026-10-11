@@ -1,0 +1,62 @@
++ cd /Users/dead/Projects/peerdb/peerdb/flow
++ /usr/local/bin/peerflow migrate
+2026/10/11 16:40:57 maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined
+{"time":"2026-10-11T16:40:57.974521173Z","level":"INFO","msg":"Starting db migrations","deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257276624Z","level":"INFO","msg":"Migration Applied","name":"00001_initial.sql","version":1,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257312414Z","level":"INFO","msg":"Migration Applied","name":"00002_peer_connections.sql","version":2,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257315831Z","level":"INFO","msg":"Migration Applied","name":"00003_add_workflow_id_to_flows.sql","version":3,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257318497Z","level":"INFO","msg":"Migration Applied","name":"00004_add_query_string_to_flows.sql","version":4,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257320539Z","level":"INFO","msg":"Migration Applied","name":"00005_monitoring_init.sql","version":5,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257322705Z","level":"INFO","msg":"Migration Applied","name":"00006_monitoring_refine_1.sql","version":6,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257324622Z","level":"INFO","msg":"Migration Applied","name":"00007_store_flow_config.sql","version":7,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257326747Z","level":"INFO","msg":"Migration Applied","name":"00008_qrep_runs_config.sql","version":8,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257328538Z","level":"INFO","msg":"Migration Applied","name":"00009_mirror_stats_rels.sql","version":9,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257330372Z","level":"INFO","msg":"Migration Applied","name":"00010_mirror_drop_bad_constraints.sql","version":10,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257333497Z","level":"INFO","msg":"Migration Applied","name":"00011_qrep_runs_start_time_nullable.sql","version":11,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257335371Z","level":"INFO","msg":"Migration Applied","name":"00012_slot_size.sql","version":12,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257337163Z","level":"INFO","msg":"Migration Applied","name":"00013_wal_status.sql","version":13,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257339288Z","level":"INFO","msg":"Migration Applied","name":"00014_qrep_rows_synced.sql","version":14,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.25734108Z","level":"INFO","msg":"Migration Applied","name":"00015_schema_deltas_audit_log.sql","version":15,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257342871Z","level":"INFO","msg":"Migration Applied","name":"00016_alerting_config_init.sql","version":16,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257344663Z","level":"INFO","msg":"Migration Applied","name":"00017_mirror_errors.sql","version":17,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257346413Z","level":"INFO","msg":"Migration Applied","name":"00018_alerting_config.sql","version":18,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257348121Z","level":"INFO","msg":"Migration Applied","name":"00019_metadata.sql","version":19,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257349871Z","level":"INFO","msg":"Migration Applied","name":"00020_slot_updated_at.sql","version":20,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257351537Z","level":"INFO","msg":"Migration Applied","name":"00021_alert_constraint_update.sql","version":21,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257353287Z","level":"INFO","msg":"Migration Applied","name":"00022_alert_column_add_config_id.sql","version":22,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257355121Z","level":"INFO","msg":"Migration Applied","name":"00023_scripts.sql","version":23,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257356871Z","level":"INFO","msg":"Migration Applied","name":"00024_qrep_runs_destination.sql","version":24,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257358662Z","level":"INFO","msg":"Migration Applied","name":"00025_recordtypecounts.sql","version":25,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257360329Z","level":"INFO","msg":"Migration Applied","name":"00026_qrep_parts_bigint_rows_synced.sql","version":26,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257368745Z","level":"INFO","msg":"Migration Applied","name":"00027_ch_s3_stage.sql","version":27,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257370662Z","level":"INFO","msg":"Migration Applied","name":"00028_ch_s3_stage_unique_constraint.sql","version":28,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257372911Z","level":"INFO","msg":"Migration Applied","name":"00029_dynconf_table_and_settings.sql","version":29,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257375161Z","level":"INFO","msg":"Migration Applied","name":"00030_more_dynconf_settings.sql","version":30,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257376828Z","level":"INFO","msg":"Migration Applied","name":"00031_more_more_dynconf_settings.sql","version":31,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257378578Z","level":"INFO","msg":"Migration Applied","name":"00032_remove_config_qrep_runs.sql","version":32,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257380744Z","level":"INFO","msg":"Migration Applied","name":"00033_aes.sql","version":33,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257382828Z","level":"INFO","msg":"Migration Applied","name":"00034_more_counts_bigint.sql","version":34,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257384578Z","level":"INFO","msg":"Migration Applied","name":"00035_encrypt_alert_config.sql","version":35,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257386286Z","level":"INFO","msg":"Migration Applied","name":"00036_reduce_dynamic_settings.sql","version":36,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257388619Z","level":"INFO","msg":"Migration Applied","name":"00037_qrep_parent_mirror.sql","version":37,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257390286Z","level":"INFO","msg":"Migration Applied","name":"00038_alerting_config_mirror_names.sql","version":38,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257392077Z","level":"INFO","msg":"Migration Applied","name":"00039_table_schema_mapping.sql","version":39,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257395577Z","level":"INFO","msg":"Migration Applied","name":"00040_maintenance_flows.sql","version":40,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257397327Z","level":"INFO","msg":"Migration Applied","name":"00041_add_metadata_tags.sql","version":41,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257398994Z","level":"INFO","msg":"Migration Applied","name":"00042_mysql_metadata.sql","version":42,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.25740066Z","level":"INFO","msg":"Migration Applied","name":"00043_cdc_table_aggregate_counts.sql","version":43,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257402577Z","level":"INFO","msg":"Migration Applied","name":"00044_flow_status.sql","version":44,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257404285Z","level":"INFO","msg":"Migration Applied","name":"00045_maintenance_deploy_version.sql","version":45,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257405993Z","level":"INFO","msg":"Migration Applied","name":"00046_metadata_raw_table_column.sql","version":46,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257407743Z","level":"INFO","msg":"Migration Applied","name":"00047_drop_cdc_batch_table.sql","version":47,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.25740941Z","level":"INFO","msg":"Migration Applied","name":"00048_unique_flows.sql","version":48,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257411118Z","level":"INFO","msg":"Migration Applied","name":"00049_flow_migrations.sql","version":49,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.25741366Z","level":"INFO","msg":"Migration Applied","name":"00050_cdc_batches_sync_time.sql","version":50,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257415368Z","level":"INFO","msg":"Migration Applied","name":"00051_qrep_partitions_nullable_range.sql","version":51,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257417118Z","level":"INFO","msg":"Migration Applied","name":"00052_qrep_partitions_child_table_ranges.sql","version":52,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257421743Z","level":"INFO","msg":"Migration Applied","name":"00053_cdc_batches_open_index.sql","version":53,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257423409Z","level":"INFO","msg":"Migration Applied","name":"00054_qrep_offloaded_partition_ranges.sql","version":54,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257425159Z","level":"INFO","msg":"Migration Applied","name":"00055_cdc_batches_first_row_times.sql","version":55,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257441617Z","level":"INFO","msg":"Migration Applied","name":"00056_query_cdc_replication_state.sql","version":56,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.257448158Z","level":"INFO","msg":"Migration Applied","name":"00057_qrep_runs_failed.sql","version":57,"deploymentUid":""}
+{"time":"2026-10-11T16:40:58.25745095Z","level":"INFO","msg":"Completed db migrations","deploymentUid":""}

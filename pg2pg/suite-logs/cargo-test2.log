@@ -1,0 +1,252 @@
++ cd /Users/dead/Projects/peerdb/peerdb/nexus
++ cargo test -- --test-threads=1
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.45
+   Compiling rustls-webpki v0.103.15
+   Compiling x509-certificate v0.25.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tonic v0.14.6
+   Compiling pgwire v0.36.3
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling tonic-prost v0.14.6
+   Compiling value v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/value)
+   Compiling pt v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/pt)
+   Compiling peer-cursor v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-cursor)
+   Compiling aws-smithy-http-client v1.5.0
+   Compiling tokio-postgres-rustls v0.14.0
+   Compiling postgres-connection v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/postgres-connection)
+   Compiling analyzer v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/analyzer)
+   Compiling peer-postgres v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-postgres)
+   Compiling tonic-health v0.14.6
+   Compiling yup-oauth2 v12.1.2
+   Compiling flow-rs v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/flow-rs)
+   Compiling mysql_async v0.37.1
+   Compiling peer-snowflake v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-snowflake)
+   Compiling aws-smithy-runtime v1.16.0
+   Compiling aws-runtime v1.10.0
+   Compiling aws-sdk-sso v1.114.0
+   Compiling aws-sdk-sts v1.119.0
+   Compiling aws-sdk-ssooidc v1.116.0
+   Compiling aws-sdk-kms v1.123.0
+   Compiling aws-config v1.12.0
+   Compiling gcp-bigquery-client v0.28.0
+   Compiling peer-mysql v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-mysql)
+   Compiling catalog v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/catalog)
+   Compiling query-router v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/query-router)
+   Compiling peer-bigquery v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-bigquery)
+   Compiling peerdb-server v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/server)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.48s
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/analyzer-4152c16b0c8e9c0a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/catalog-af1294098d656a42)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/flow_rs-27cde204aaf24b1b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/parser-11c09b2c8ab60a33)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/peerdb.rs (/Users/dead/cargo-target/debug/deps/peerdb-23962bb7ab3c7217)
+
+running 24 tests
+test create_mirror_cdc_schema_mapping ... ok
+test create_mirror_cdc_table_mapping ... ok
+test create_mirror_cdc_v2_mapping ... ok
+test create_mirror_cdc_with_options ... ok
+test create_mirror_select ... ok
+test create_mirror_select_with_options ... ok
+test create_peer_all_types ... ok
+test create_peer_cockroachdb ... ok
+test create_peer_if_not_exists ... ok
+test create_peer_postgres ... ok
+test drop_mirror ... ok
+test drop_mirror_if_exists ... ok
+test drop_peer ... ok
+test drop_peer_if_exists ... ok
+test execute_mirror ... ok
+test multiple_statements ... ok
+test pause_mirror ... ok
+test pause_mirror_if_exists ... ok
+test resume_mirror ... ok
+test resume_mirror_if_exists ... ok
+test resync_mirror ... ok
+test resync_mirror_if_exists_with_options ... ok
+test standard_create_table ... ok
+test standard_select ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/peer_bigquery-fbdc284b16b0c482)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/peer_cursor-c49c5a05da26582a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/peer_mysql-48184d12b6a62344)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/peer_postgres-8f183ebcfbb73a84)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/peer_snowflake-61cfcd7d98644e9c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/Users/dead/cargo-target/debug/deps/peerdb_server-6f6b1215f489fc1f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/server_test.rs (/Users/dead/cargo-target/debug/deps/server_test-89e52f23ab2c070d)
+
+running 4 tests
+test extended_query_protocol_no_params_bq ... ignored, requires some work for extended query prepares on bigquery.
+test extended_query_protocol_no_params_catalog ... ignored, create peers needs flow api
+test query_unknown_peer_doesnt_crash_server ...    Compiling ring v0.17.14
+   Compiling x509-certificate v0.25.0
+   Compiling pgwire v0.36.3
+   Compiling value v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/value)
+   Compiling peer-cursor v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-cursor)
+   Compiling peer-postgres v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/peer-postgres)
+   Compiling catalog v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/catalog)
+   Compiling query-router v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/query-router)
+   Compiling peerdb-server v0.1.0 (/Users/dead/Projects/peerdb/peerdb/nexus/server)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.42s
+     Running `/Users/dead/cargo-target/debug/peerdb-server`
+ok
+test server_test ... ignored, create peers needs flow api
+
+test result: ok. 1 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 7.08s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/postgres_connection-1505659b95e93564)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/pt-101c0c7d87160611)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/query_router-7b762c1e96628162)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/dead/cargo-target/debug/deps/value-18f9e837c60f1933)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests analyzer
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests catalog
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests flow_rs
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests parser
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests peer_bigquery
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests peer_cursor
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests peer_mysql
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests peer_postgres
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests peer_snowflake
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests postgres_connection
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests pt
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests query_router
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests value
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

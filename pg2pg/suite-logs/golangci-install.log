@@ -1,0 +1,4 @@
+golangci/golangci-lint info checking GitHub for tag 'v2.14.0'
+golangci/golangci-lint info found version: 2.14.0 for v2.14.0/linux/arm64
+golangci/golangci-lint err hash_sha256_verify checksum for '/tmp/tmp.plGQPzT2En/golangci-lint-2.14.0-linux-arm64.tar.gz' did not verify ee7ec5f3453d15ddf106fae5a4d6c71737712348a979d1fe9cd52ec7ea299bae
+9ee57d29f399be4b5766233b97f03712966343bade414de9581a4f6ad7b570ff vs ee7ec5f3453d15ddf106fae5a4d6c71737712348a979d1fe9cd52ec7ea299bae

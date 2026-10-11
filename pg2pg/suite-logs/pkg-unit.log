@@ -1,0 +1,9 @@
++ cd /Users/dead/Projects/peerdb/peerdb/flow/pkg
++ go test ./... -timeout 300s
+?   	github.com/PeerDB-io/peerdb/flow/pkg/bigquery	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/clickhouse	0.205s
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/common	0.009s
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/mongo	0.004s
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/mysql	0.004s
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/postgres	0.004s
+ok  	github.com/PeerDB-io/peerdb/flow/pkg/testutil	0.003s

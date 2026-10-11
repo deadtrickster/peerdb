@@ -1,0 +1,53 @@
++ cd /Users/dead/Projects/peerdb/peerdb/flow
++ go test ./... -timeout 600s
+go: downloading github.com/lestrrat-go/httprc v1.0.5
+go: downloading github.com/lestrrat-go/option v1.0.1
+go: downloading github.com/klauspost/cpuid v1.3.1
+go: downloading github.com/shirou/gopsutil v3.21.11+incompatible
+?   	github.com/PeerDB-io/peerdb/flow	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/activities	0.027s
+ok  	github.com/PeerDB-io/peerdb/flow/alerting	0.019s
+ok  	github.com/PeerDB-io/peerdb/flow/cmd	1.029s
+?   	github.com/PeerDB-io/peerdb/flow/cmd/codegen	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/bigquery	0.016s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/clickhouse	0.077s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/cockroachdb	0.021s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/elasticsearch	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/eventhub	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/external_metadata	0.011s [no tests to run]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/kafka	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/mongo	0.039s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/mysql	0.043s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/postgres	0.149s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/postgres/sanitize	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/pubsub	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/connectors/s3	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/snowflake	0.032s
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/utils	1.972s
+?   	github.com/PeerDB-io/peerdb/flow/connectors/utils/monitoring	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/connectors/utils/structured	0.015s
+ok  	github.com/PeerDB-io/peerdb/flow/db	0.006s [no tests to run]
+?   	github.com/PeerDB-io/peerdb/flow/e2e	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/e2eshared	0.007s
+?   	github.com/PeerDB-io/peerdb/flow/generated/grpc_handler	[no test files]
+?   	github.com/PeerDB-io/peerdb/flow/generated/protos	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/internal	0.017s
+ok  	github.com/PeerDB-io/peerdb/flow/internal/clickhouse	0.003s
+ok  	github.com/PeerDB-io/peerdb/flow/middleware	0.006s
+ok  	github.com/PeerDB-io/peerdb/flow/model	68.771s
+ok  	github.com/PeerDB-io/peerdb/flow/model/qvalue	0.070s
+ok  	github.com/PeerDB-io/peerdb/flow/otel_metrics	0.007s
+ok  	github.com/PeerDB-io/peerdb/flow/proto_conversions	(cached)
+ok  	github.com/PeerDB-io/peerdb/flow/pua	0.011s
+ok  	github.com/PeerDB-io/peerdb/flow/shared	0.031s
+?   	github.com/PeerDB-io/peerdb/flow/shared/aws_common	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/shared/concurrency	(cached)
+ok  	github.com/PeerDB-io/peerdb/flow/shared/datatypes	0.004s
+ok  	github.com/PeerDB-io/peerdb/flow/shared/exceptions	0.274s
+?   	github.com/PeerDB-io/peerdb/flow/shared/telemetry	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/shared/types	0.004s
+?   	github.com/PeerDB-io/peerdb/flow/switchboard	[no test files]
+ok  	github.com/PeerDB-io/peerdb/flow/switchboard/mongodb	(cached)
+ok  	github.com/PeerDB-io/peerdb/flow/workflows	0.199s
+?   	github.com/PeerDB-io/peerdb/flow/workflows/cdc_state	[no test files]
