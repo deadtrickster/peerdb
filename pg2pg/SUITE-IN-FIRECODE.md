@@ -100,3 +100,52 @@ output the host has — use `--exclude target --exclude node_modules --exclude .
 the *project* drive is re-packed from the host every run while `$HOME` and the root overlay
 persist, the caches that actually pay are the ones under `$HOME` (Go build cache, cargo registry,
 `CARGO_TARGET_DIR`), not anything inside the checkout.
+
+## The flake: a deterministic reproducer and the fix (`flake-fix/`)
+
+`TestRunPipeline_FilterStripsLines` failing once with `src failed: signal: killed` is not a
+heisenbug. It is a two-line hole in `runPipeline`, and it can be made to fail every time:
+
+    bash pg2pg/flake-fix/reproduce.sh <path-to-checkout>
+
+**The hole.** In `flow/connectors/postgres/pgdump_schema.go`, the `dstDone` branch kills `src`
+*without* an `err != nil` guard — its mirror for `src` has one — deliberately: *“dst exited
+(success or failure) while src is still running; kill src so it doesn't block on a pipe with no
+reader.”* It sets `srcKilled = true` when the kill succeeds, and the check `if srcErr != nil &&
+!srcKilled` then correctly suppresses that kill. Two lines below, the **fallback reports `srcErr`
+unconditionally**, undoing the suppression.
+
+**Why the reported side identifies the path.** Had the context cancelled and taken both children
+with it, neither flag would be set, so the *earlier* check would have fired and the message would
+read `dst failed: signal: killed`. Seeing `src` is only reachable through the fallback.
+
+**Why it needed a race at all.** The kill requires `srcCmd.ProcessState == nil` when `dstDone` is
+selected: the `Wait()` goroutine must not have been scheduled yet. With `cat` as the destination
+that is a narrow window — the destination only exits once `src`'s stdout has hit EOF — so the
+reproducer uses a destination that exits *without reading* (`true`), where `dstDone` fires while
+`src` is still unreaped, every time.
+
+**Repetition is not the instrument; this is.** 200 isolated runs, then 2,000 more at
+`GOMAXPROCS=1 -cpu=1` (chosen because the window looked like Go-runtime scheduling, and it did
+**not** widen it), then 10 whole-module runs at `-p 4`, and a whole-module run under CPU
+contention: **all clean.** The single real occurrence came from a whole-module run in a 4 vCPU
+firecode guest, so the rate under normal conditions is under 1 in ~2,200 attempts on an 18-core
+host. The deterministic case is what proves the defect, and it needs no rate at all.
+
+**Three phases, all via `go test -overlay`, so the checkout is never modified:**
+
+| phase | what | expected |
+|---|---|---|
+| RED | unmodified code, the invariant test ×3 | 3 × `src failed: signal: killed` |
+| GREEN | guarded fallback, invariant + original test ×5 | `ok` |
+| MUTATION | filter turned into a passthrough | the **original** test still fails on `filtered output = …` |
+
+The mutation phase is the one that matters: it shows the invariant test does not weaken the test
+it stands beside — the failure mode a flake “fix” usually has.
+
+**Landing.** `flake-fix/patch.diff` applies cleanly (`git apply --check`) and is the whole fix:
+two added conditions, no behaviour change for a genuine failure. `flake-fix/zz_killed_src_test.go`
+is worth adding permanently — it is deterministic, so it fails before the fix and passes after;
+it spawns `sh` and `true`, so it wants the same Unix guard its neighbours use. Nothing here has
+been applied to the tree: `flake-fix/` holds the patch, the test, the fixed and mutated sources,
+and the reproducer.

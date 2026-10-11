@@ -1,0 +1,20 @@
+--- a/flow/connectors/postgres/pgdump_schema.go
++++ b/flow/connectors/postgres/pgdump_schema.go
+@@ -239,11 +239,14 @@
+ 	if filterErr != nil {
+ 		return fmt.Errorf("filter failed: %w", filterErr)
+ 	}
+-	// Fallback: both sides killed (e.g. ctx cancel) — surface whichever error we have.
+-	if srcErr != nil {
++	// Fallback: both sides killed (e.g. ctx cancel) — surface whichever error we have,
++	// but never a side this function killed on purpose. Killing src because dst is already
++	// gone is not a failure of src, and reporting it as one is what produced a flaky
++	// "src failed: signal: killed" whose rate depended on the scheduler.
++	if srcErr != nil && !srcKilled {
+ 		return fmt.Errorf("%s failed: %w\nstderr:\n%s", srcName, srcErr, srcStderr.String())
+ 	}
+-	if dstErr != nil {
++	if dstErr != nil && !dstKilled {
+ 		return fmt.Errorf("%s failed: %w\nstderr:\n%s", dstName, dstErr, dstStderr.String())
+ 	}
+ 	return nil
